@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('games_tags', function (Blueprint $table) {
-            $table->integer('tags_id');
-            $table->integer('games_id');
-            $table->primary(['tags_id', 'games_id']);
-            $table->foreign('tags_id')->references('id')->on('tags');
-            $table->foreign('games_id')->references('id')->on('games');
+            $table->integer('tag_id');
+            $table->integer('game_id');
+            $table->primary(['tag_id', 'game_id']);
+            $table->foreign('tag_id')->references('id')->on('tags');
+            $table->foreign('game_id')->references('id')->on('games');
         });
     }
 

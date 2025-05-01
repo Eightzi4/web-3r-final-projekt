@@ -17,8 +17,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('trailer_link')->nullable();
             $table->boolean('visible');
-            $table->integer('developers_id');
-            $table->foreign('developers_id')->references('id')->on('developers');
+            $table->integer('developer_id');
+            $table->foreign('developer_id')->references('id')->on('developers');
         });
     }
 
