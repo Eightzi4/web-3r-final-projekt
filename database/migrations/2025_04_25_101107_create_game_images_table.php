@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('game_images', function (Blueprint $table) {
             $table->integer('id')->autoIncrement()->startingValue(51);
             $table->string('image');
-            $table->integer('games_id');
-            $table->foreign('games_id')->references('id')->on('games');
+            $table->integer('game_id');
+            $table->foreign('game_id')->references('id')->on('games');
         });
     }
 

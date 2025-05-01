@@ -16,12 +16,12 @@ return new class extends Migration
             $table->float('price');
             $table->date('date');
             $table->float('discount');
-            $table->integer('games_id');
-            $table->integer('platforms_id');
-            $table->integer('stores_id');
-            $table->foreign('games_id')->references('id')->on('games');
-            $table->foreign('platforms_id')->references('id')->on('platforms');
-            $table->foreign('stores_id')->references('id')->on('stores');
+            $table->integer('game_id');
+            $table->integer('platform_id');
+            $table->integer('store_id');
+            $table->foreign('game_id')->references('id')->on('games');
+            $table->foreign('platform_id')->references('id')->on('platforms');
+            $table->foreign('store_id')->references('id')->on('stores');
         });
     }
 

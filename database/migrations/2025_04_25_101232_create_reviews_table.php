@@ -15,10 +15,10 @@ return new class extends Migration
             $table->integer('id')->autoIncrement()->startingValue(1001);
             $table->text('content')->nullable();
             $table->integer('rating');
-            $table->integer('games_id');
-            $table->integer('user_id');
-            $table->foreign('games_id')->references('id')->on('games');
-            $table->foreign('user_id')->references('id')->on('users2');
+            $table->integer('game_id');
+            $table->integer('user2_id');
+            $table->foreign('game_id')->references('id')->on('games');
+            $table->foreign('user2_id')->references('id')->on('users2');
         });
     }
 
