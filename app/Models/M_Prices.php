@@ -9,7 +9,18 @@ class M_Prices extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'prices';
+    protected $fillable = [
+        'id',
+        'price',
+        'date',
+        'discount',
+        'game_id',
+        'platform_id',
+        'store_id'
+    ];
 
     public function game()
     {

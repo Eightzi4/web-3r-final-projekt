@@ -8,7 +8,7 @@ class C_Discover extends Controller
 {
     public function index()
     {
-        $games = M_Games::with(['developer', 'images'])
+        $games = M_Games::with(['developer', 'images', 'latestPrice'])
             ->inRandomOrder()
             ->where('visible', true)
             ->paginate(12);

@@ -6,6 +6,6 @@
     </div>
 
     <div class="mt-6">
-        {{ $games->links() }}
+        {{ $games->appends(request()->query())->links() }}
     </div>
 </x-layouts.v-main-layout>

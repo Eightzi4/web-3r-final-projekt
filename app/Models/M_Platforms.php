@@ -9,7 +9,13 @@ class M_Platforms extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'platforms';
+    protected $fillable = [
+        'id',
+        'name'
+    ];
 
     public function prices()
     {

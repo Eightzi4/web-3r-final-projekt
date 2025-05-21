@@ -9,7 +9,14 @@ class M_DeveloperImages extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'developer_images';
+    protected $fillable = [
+        'id',
+        'image',
+        'developer_id'
+    ];
 
     public function developer()
     {

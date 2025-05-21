@@ -9,7 +9,13 @@ class M_GameStates extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 'game_states';
+    protected $fillable = [
+        'game_id',
+        'game_state_id'
+    ];
 
     public function games()
     {

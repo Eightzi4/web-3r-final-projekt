@@ -5,21 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class M_GameImages extends Model
+class M_Countries extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
-    protected $table = 'game_images';
+    protected $table = 'countries';
     protected $fillable = [
         'id',
-        'image',
-        'game_id'
+        'name'
     ];
 
-    public function game()
+    public function developers()
     {
-        return $this->belongsTo(M_Games::class, 'game_id');
+        return $this->hasMany(M_Developers::class, 'country_id');
     }
 }
