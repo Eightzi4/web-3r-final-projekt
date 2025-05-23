@@ -6,20 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('platforms', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(501);
-            $table->string('name');
+            // $table->integer('id')->autoIncrement()->startingValue(501); // Old
+            $table->id(); // New
+            $table->string('name')->unique();
+            // No timestamps typically needed
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('platforms');

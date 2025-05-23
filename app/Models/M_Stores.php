@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class M_Stores extends Model
 {
     use HasFactory;
-
+    // Timestamps might be useful here too.
     protected $table = 'stores';
+    protected $fillable = ['id', 'name', 'url']; // Assuming 'name' and 'url'
 
     public function prices()
     {

@@ -6,24 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('developer_images', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(51);
+            // $table->integer('id')->autoIncrement()->startingValue(51); // Old
+            $table->id(); // New
             $table->string('image');
-            $table->integer('developer_id');
-            $table->foreign('developer_id')->references('id')->on('developers');
+            // $table->integer('developer_id'); // Old
+            $table->unsignedBigInteger('developer_id'); // New
+
+            $table->foreign('developer_id')
+                  ->references('id')->on('developers')
+                  ->onDelete('cascade'); // If developer is deleted, their images are deleted
+            // No timestamps typically needed for simple image link table
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::table('developer_images', function (Blueprint $table) {
+            $table->dropForeign(['developer_id']);
+        });
         Schema::dropIfExists('developer_images');
     }
 };

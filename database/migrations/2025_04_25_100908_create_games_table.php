@@ -12,13 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('games', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(2001);
+            // $table->integer('id')->autoIncrement()->startingValue(2001); // Old
+            $table->id(); // New: This creates an UNSIGNED BIGINT 'id'
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('trailer_link')->nullable();
             $table->boolean('visible');
-            $table->integer('developer_id');
-            $table->foreign('developer_id')->references('id')->on('developers');
+
+            // For developer_id, assuming developers.id is also UNSIGNED BIGINT (created with $table->id())
+            $table->unsignedBigInteger('developer_id');
+            $table->foreign('developer_id')->references('id')->on('developers')->onDelete('cascade'); // Added onDelete cascade
+
+            $table->timestamps(); // It's good practice to add timestamps
         });
     }
 
@@ -27,6 +32,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('games', function (Blueprint $table) {
+            if (Schema::hasColumn('games', 'developer_id')) { // Check before dropping if you might run down multiple times
+                $table->dropForeign(['developer_id']);
+            }
+        });
         Schema::dropIfExists('games');
     }
 };

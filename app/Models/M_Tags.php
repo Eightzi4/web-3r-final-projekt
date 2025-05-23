@@ -8,16 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class M_Tags extends Model
 {
     use HasFactory;
-
     public $timestamps = false;
-
     protected $table = 'tags';
-    protected $fillable = [
-        'id',
-        'name',
-        'description',
-        'color'
-    ];
+    protected $fillable = ['id', 'name', 'description', 'color'];
 
     public function games()
     {

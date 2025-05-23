@@ -12,11 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('owned_games', function (Blueprint $table) {
-            $table->integer('user2_id');
-            $table->integer('game_id');
-            $table->primary(['user2_id', 'game_id']);
-            $table->foreign('user2_id')->references('id')->on('users2');
-            $table->foreign('game_id')->references('id')->on('games');
+            // $table->integer('user_id'); // Old
+            // $table->integer('game_id'); // Old
+
+            $table->unsignedBigInteger('user_id'); // Correct: Matches users.id (if it's bigIncrements)
+            $table->unsignedBigInteger('game_id'); // Correct: Matches games.id (if it's bigIncrements)
+
+            $table->primary(['user_id', 'game_id']);
+
+            // Define foreign keys
+            // onDelete('cascade') means if a user or game is deleted,
+            // the corresponding entries in owned_games will also be deleted.
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
         });
     }
 
@@ -25,6 +33,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('owned_games', function (Blueprint $table) {
+            // It's good practice to drop foreign keys before dropping the table,
+            // or if you want to modify them.
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['game_id']);
+        });
         Schema::dropIfExists('owned_games');
     }
 };

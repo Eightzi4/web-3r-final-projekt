@@ -8,14 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class M_Countries extends Model
 {
     use HasFactory;
-
     public $timestamps = false;
-
     protected $table = 'countries';
-    protected $fillable = [
-        'id',
-        'name'
-    ];
+    protected $fillable = ['id', 'name'];
 
     public function developers()
     {

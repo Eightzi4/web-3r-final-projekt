@@ -9,17 +9,12 @@ class M_Prices extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    // public $timestamps = false; // Consider if you want created_at/updated_at for price records
+    // If 'date' field serves as creation date, then false is fine.
 
     protected $table = 'prices';
     protected $fillable = [
-        'id',
-        'price',
-        'date',
-        'discount',
-        'game_id',
-        'platform_id',
-        'store_id'
+        'id', 'price', 'date', 'discount', 'game_id', 'platform_id', 'store_id'
     ];
 
     public function game()

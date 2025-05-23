@@ -5,62 +5,113 @@ namespace App\Http\Controllers;
 use App\Models\M_Games;
 use App\Models\M_Prices;
 use App\Models\M_GameImages;
+use App\Models\M_Developers;
+use App\Models\M_Tags;
+use App\Models\M_Platforms;
+use App\Models\M_Stores;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Str; // For slug generation if needed
 
 class C_Game extends Controller
 {
+    // Apply admin middleware to CUD operations
+    public function __construct()
+    {
+        $this->middleware('admin')->except(['show']); // 'show' is public
+    }
+
+    public function show(M_Games $game)
+    {
+        if (!$game->visible && !(auth()->check() && auth()->user()->is_admin)) {
+            abort(404); // Hide non-visible games from non-admins
+        }
+
+        $game->load([
+            'developer',
+            'images',
+            'tags',
+            'prices.platform',
+            'prices.store',
+            'reviews.user' // Load reviews and their users
+        ]);
+
+        // For related/recommended games (simple example: games by same developer)
+        $relatedGames = M_Games::where('developer_id', $game->developer_id)
+            ->where('id', '!=', $game->id)
+            ->where('visible', true)
+            ->with(['images', 'latestPrice'])
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Games', 'url' => route('search')], // Or discover if no general games list
+            ['name' => Str::limit($game->name, 30)]
+        ];
+
+        return view('games.V_ShowGame', compact('game', 'relatedGames', 'breadcrumbs'));
+    }
+
     public function create()
     {
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Admin', 'url' => '#'], // Placeholder for admin dashboard
+            ['name' => 'Add Game']
+        ];
         return view('games.V_CreateEdit', [
             'game' => new M_Games(),
-            'developers' => \App\Models\M_Developers::all(),
-            'tags' => \App\Models\M_Tags::all(),
-            'platforms' => \App\Models\M_Platforms::all(),
-            'stores' => \App\Models\M_Stores::all(),
+            'developers' => M_Developers::orderBy('name')->get(),
+            'tags' => M_Tags::orderBy('name')->get(),
+            'platforms' => M_Platforms::orderBy('name')->get(),
+            'stores' => M_Stores::orderBy('name')->get(),
             'selectedTags' => [],
-            'selectedPlatforms' => [],
-            'selectedStores' => [],
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
     public function store(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'visible' => 'required|boolean',
-                'tags' => 'nullable|string',
-                'developer_id' => 'required|exists:developers,id',
-                'prices' => 'required|array|min:1',
-                'prices.*.platform_id' => 'required|exists:platforms,id',
-                'prices.*.store_id' => 'required|exists:stores,id',
-                'prices.*.price' => 'required|numeric|min:0',
-                'prices.*.discount' => 'nullable|numeric|min:0|max:100',
-                'images' => 'nullable|array',
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:games,name', // Ensure name is unique
+            'description' => 'nullable|string',
+            'trailer_link' => 'nullable|url',
+            'visible' => 'required|boolean',
+            'tags' => 'nullable|string', // Comma-separated tag names
+            'developer_id' => 'required|exists:developers,id',
+            'prices' => 'required|array|min:1',
+            'prices.*.platform_id' => 'required|exists:platforms,id',
+            'prices.*.store_id' => 'required|exists:stores,id',
+            'prices.*.price' => 'required|numeric|min:0',
+            'prices.*.discount' => 'nullable|numeric|min:0|max:100',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
 
-            // Create game
+        DB::beginTransaction();
+        try {
             $game = M_Games::create([
                 'name' => $validated['name'],
                 'description' => $validated['description'],
+                'trailer_link' => $validated['trailer_link'],
                 'developer_id' => $validated['developer_id'],
                 'visible' => $validated['visible']
             ]);
 
-            // Handle tags
             if (!empty($validated['tags'])) {
-                $tags = explode(',', $validated['tags']);
-                $tagIds = \App\Models\M_Tags::whereIn('name', $tags)->pluck('id');
+                $tagNames = explode(',', $validated['tags']);
+                $tagIds = [];
+                foreach ($tagNames as $tagName) {
+                    $tag = M_Tags::firstOrCreate(['name' => trim($tagName)]);
+                    $tagIds[] = $tag->id;
+                }
                 $game->tags()->attach($tagIds);
             }
 
-            // Create prices
             foreach ($validated['prices'] as $priceData) {
                 M_Prices::create([
                     'price' => $priceData['price'],
@@ -72,49 +123,53 @@ class C_Game extends Controller
                 ]);
             }
 
-            // Handle images
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('public/game_images');
+                    $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+                    $path = $image->storeAs('game_images', $filename, 'public');
                     M_GameImages::create([
-                        'image' => str_replace('public/', '', $path),
+                        'image' => $path, // Store 'game_images/filename.ext'
                         'game_id' => $game->id
                     ]);
                 }
-                Log::info('Images uploaded', ['count' => count($request->file('images'))]);
             }
-
-            return redirect()->back()->with('success', 'Game created successfully!');
+            DB::commit();
+            return redirect()->route('games.edit', $game)->with('success', 'Game created successfully!');
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['error' => $e->getMessage()]);
+            DB::rollBack();
+            Log::error('Game creation failed: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to create game. ' . $e->getMessage()]);
         }
     }
 
     public function edit(M_Games $game)
     {
-        Log::debug('Edit method data:', [
-            'tags' => $game->tags->pluck('name'),
-            'platforms' => $game->prices->pluck('platform.name'),
-            'stores' => $game->prices->pluck('store.name')
-        ]);
+        $game->load('images', 'tags', 'prices'); // Eager load for the form
+
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Admin', 'url' => '#'],
+            ['name' => 'Games', 'url' => route('admin.games.index')], // Assuming an admin games list page
+            ['name' => 'Edit: ' . Str::limit($game->name, 20)]
+        ];
 
         return view('games.V_CreateEdit', [
             'game' => $game,
-            'developers' => \App\Models\M_Developers::all(),
-            'tags' => \App\Models\M_Tags::all(),
-            'platforms' => \App\Models\M_Platforms::all(),
-            'stores' => \App\Models\M_Stores::all(),
+            'developers' => M_Developers::orderBy('name')->get(),
+            'tags' => M_Tags::orderBy('name')->get(),
+            'platforms' => M_Platforms::orderBy('name')->get(),
+            'stores' => M_Stores::orderBy('name')->get(),
             'selectedTags' => $game->tags->pluck('name')->toArray(),
-            'selectedPlatforms' => $game->prices->pluck('platform.name')->filter()->unique()->values()->toArray() ?? [],
-            'selectedStores' => $game->prices->pluck('store.name')->filter()->unique()->values()->toArray() ?? [],
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
     public function update(Request $request, M_Games $game)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:games,name,' . $game->id,
             'description' => 'nullable|string',
+            'trailer_link' => 'nullable|url',
             'visible' => 'required|boolean',
             'tags' => 'nullable|string',
             'developer_id' => 'required|exists:developers,id',
@@ -124,89 +179,122 @@ class C_Game extends Controller
             'prices.*.price' => 'required|numeric|min:0',
             'prices.*.discount' => 'nullable|numeric|min:0|max:100',
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'delete_images' => 'nullable|array', // For handling image deletion
+            'delete_images.*' => 'integer|exists:developer_images,id', // Or game_images,id
         ]);
 
-        // Update game
-        $game->update($request->only(['name', 'description', 'developer_id', 'visible']));
+        DB::beginTransaction();
+        try {
+            $game->update($request->only(['name', 'description', 'trailer_link', 'developer_id', 'visible']));
 
-        // Sync tags
-        if (!empty($validated['tags'])) {
-            $tags = explode(',', $validated['tags']);
-            $tagIds = \App\Models\M_Tags::whereIn('name', $tags)->pluck('id');
-            $game->tags()->sync($tagIds);
-        } else {
-            $game->tags()->detach();
-        }
+            if (!empty($validated['tags'])) {
+                $tagNames = explode(',', $validated['tags']);
+                $tagIds = [];
+                foreach ($tagNames as $tagName) {
+                    $tag = M_Tags::firstOrCreate(['name' => trim($tagName)]);
+                    $tagIds[] = $tag->id;
+                }
+                $game->tags()->sync($tagIds);
+            } else {
+                $game->tags()->detach();
+            }
 
-        // Delete old prices and create new ones
-        $game->prices()->delete();
-        foreach ($validated['prices'] as $priceData) {
-            M_Prices::create([
-                'price' => $priceData['price'],
-                'discount' => $priceData['discount'] ?? 0,
-                'date' => now(),
-                'game_id' => $game->id,
-                'platform_id' => $priceData['platform_id'],
-                'store_id' => $priceData['store_id']
-            ]);
-        }
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('public/game_images');
-                M_GameImages::create([
-                    'image' => str_replace('public/', '', $path),
-                    'game_id' => $game->id
+            // Price update: Delete old and create new.
+            // Consider a more sophisticated update if historical prices are needed.
+            $game->prices()->delete();
+            foreach ($validated['prices'] as $priceData) {
+                M_Prices::create([
+                    'price' => $priceData['price'],
+                    'discount' => $priceData['discount'] ?? 0,
+                    'date' => now(),
+                    'game_id' => $game->id,
+                    'platform_id' => $priceData['platform_id'],
+                    'store_id' => $priceData['store_id']
                 ]);
             }
-        }
 
-        return redirect()->route('games.edit', $game)->with('success', 'Game updated successfully!');
+            // Handle image deletion
+            if ($request->has('delete_images')) {
+                foreach ($request->input('delete_images') as $imageId) {
+                    $image = M_GameImages::find($imageId);
+                    if ($image && $image->game_id == $game->id) { // Ensure image belongs to the game
+                        Storage::disk('public')->delete($image->image);
+                        $image->delete();
+                    }
+                }
+            }
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+                    $path = $image->storeAs('game_images', $filename, 'public');
+                    M_GameImages::create([
+                        'image' => $path,
+                        'game_id' => $game->id
+                    ]);
+                }
+            }
+            DB::commit();
+            return redirect()->route('games.edit', $game)->with('success', 'Game updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Game update failed: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to update game. ' . $e->getMessage()]);
+        }
     }
 
     public function destroy(M_Games $game)
     {
-        // Delete wishlist entries (unique to this game)
-        if (DB::getSchemaBuilder()->hasTable('wished_games')) {
-            DB::table('wished_games')->where('game_id', $game->id)->delete();
+        DB::beginTransaction();
+        try {
+            // Detach from pivot tables first
+            $game->tags()->detach();
+            $game->gameStates()->detach(); // Assuming this relationship exists and is many-to-many
+            $game->owners()->detach();     // Users who own the game
+            $game->wishers()->detach();    // Users who wishlisted the game
+
+            // Delete related one-to-many or one-to-one records
+            $game->reviews()->delete();
+            $game->prices()->delete();
+
+            foreach ($game->images as $image) {
+                Storage::disk('public')->delete($image->image);
+                $image->delete();
+            }
+
+            $game->delete();
+            DB::commit();
+            return redirect()->route('discover') // Or an admin game list page
+                ->with('success', 'Game "' . $game->name . '" deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Game deletion failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete game. ' . $e->getMessage());
         }
-
-        // Delete owned games entries (unique to this game)
-        if (DB::getSchemaBuilder()->hasTable('owned_games')) {
-            DB::table('owned_games')->where('game_id', $game->id)->delete();
-        }
-
-        // Delete reviews (unique to this game)
-        $game->reviews()->delete();
-
-        // Delete game states relationship (just detach, don't delete states as they can be used by other games)
-        if (method_exists($game, 'gameStates')) {
-            $game->gameStates()->detach();
-        }
-
-        // Delete tags relationship (just detach, don't delete tags as they can be used by other games)
-        $game->tags()->detach();
-
-        // Delete prices (unique to this game)
-        $game->prices()->delete();
-
-        // Delete images (unique to this game)
-        foreach ($game->images as $image) {
-            Storage::delete('public/' . $image->image);
-            $image->delete();
-        }
-
-        // Finally delete the game itself
-        $game->delete();
-
-        return redirect()->back()->with('success', 'Game deleted successfully!');
     }
 
-    public function destroyImage(M_GameImages $image)
+    // Renamed from destroyImage, specific to game images
+    public function destroyGameImage(M_GameImages $image) // Use Route Model Binding
     {
-        Storage::delete('public/' . $image->image);
+        // Optional: Add authorization check to ensure user can delete this
+        Storage::disk('public')->delete($image->image);
         $image->delete();
         return back()->with('success', 'Image deleted successfully');
+    }
+
+    // Example: An admin page to list all games for management
+    public function adminIndex(Request $request)
+    {
+        $games = M_Games::with('developer', 'latestPrice')
+            ->orderBy('name')
+            ->paginate(15);
+
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Admin', 'url' => '#'],
+            ['name' => 'Manage Games']
+        ];
+        return view('admin.games.V_AdminIndex', compact('games', 'breadcrumbs'));
     }
 }

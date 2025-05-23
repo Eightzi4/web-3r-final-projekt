@@ -6,24 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('game_images', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(51);
+            // $table->integer('id')->autoIncrement()->startingValue(51); // Old
+            $table->id(); // New
             $table->string('image');
-            $table->integer('game_id');
-            $table->foreign('game_id')->references('id')->on('games');
+            // $table->integer('game_id'); // Old
+            $table->unsignedBigInteger('game_id'); // New
+
+            $table->foreign('game_id')
+                  ->references('id')->on('games')
+                  ->onDelete('cascade'); // If game is deleted, its images are deleted
+            // No timestamps typically needed
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::table('game_images', function (Blueprint $table) {
+            $table->dropForeign(['game_id']);
+        });
         Schema::dropIfExists('game_images');
     }
 };

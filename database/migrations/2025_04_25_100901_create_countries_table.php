@@ -6,21 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('countries', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(401);
-            $table->string('name');
-            $table->primary('id');
+            // $table->integer('id')->autoIncrement()->startingValue(401); // Old
+            // $table->primary('id'); // Old - $table->id() handles this
+            $table->id(); // New
+            $table->string('name')->unique(); // Country names should likely be unique
+            // No timestamps needed for a simple lookup table like countries typically
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('countries');

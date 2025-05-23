@@ -6,21 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('stores', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement()->startingValue(401);
-            $table->string('name');
-            $table->string('website_link');
+            // $table->integer('id')->autoIncrement()->startingValue(401); // Old
+            $table->id(); // New
+            $table->string('name')->unique();
+            $table->string('website_link')->nullable(); // Made nullable as not all might have one
+            $table->timestamps(); // Stores might have relevant creation/update dates
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('stores');

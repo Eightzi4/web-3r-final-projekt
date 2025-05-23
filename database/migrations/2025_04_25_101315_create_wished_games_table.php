@@ -6,25 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('wished_games', function (Blueprint $table) {
-            $table->integer('user2_id');
-            $table->integer('game_id');
-            $table->primary(['user2_id', 'game_id']);
-            $table->foreign('user2_id')->references('id')->on('users2');
-            $table->foreign('game_id')->references('id')->on('games');
+            // $table->integer('user_id'); // Old
+            // $table->integer('game_id'); // Old
+            $table->unsignedBigInteger('user_id'); // New
+            $table->unsignedBigInteger('game_id'); // New
+
+            $table->primary(['user_id', 'game_id']);
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::table('wished_games', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['game_id']);
+        });
         Schema::dropIfExists('wished_games');
     }
 };

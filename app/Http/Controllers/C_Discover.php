@@ -8,11 +8,17 @@ class C_Discover extends Controller
 {
     public function index()
     {
-        $games = M_Games::with(['developer', 'images', 'latestPrice'])
+        // Eager load relationships that are always used in the card
+        $games = M_Games::with(['developer', 'images', 'latestPrice', 'tags'])
+            ->where('visible', true) // Only show visible games
             ->inRandomOrder()
-            ->where('visible', true)
             ->paginate(12);
 
-        return view('discover.V_Discover', compact('games'));
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Discover']
+        ];
+
+        return view('discover.V_Discover', compact('games', 'breadcrumbs'));
     }
 }
