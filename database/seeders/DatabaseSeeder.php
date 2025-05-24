@@ -79,9 +79,12 @@ class DatabaseSeeder extends Seeder
 
         // --- Seed Developers ---
         M_Developers::factory(50)->recycle($countries)->create()->each(function ($developer) {
-            // Optionally create some developer images
-            if (rand(0, 1)) { // 50% chance
-                M_DeveloperImages::factory(rand(1, 3))->create(['developer_id' => $developer->id]);
+            // Assign 1 to 3 random placeholder images to each developer
+            for ($i = 0; $i < rand(1, 3); $i++) {
+                M_DeveloperImages::factory()->create([
+                    'developer_id' => $developer->id,
+                    // The 'image' field will be filled by the MDeveloperImagesFactory's definition
+                ]);
             }
         });
         $developers = M_Developers::all();
@@ -91,7 +94,12 @@ class DatabaseSeeder extends Seeder
         // Aim for ~500 games. Each game will get images, tags, states, prices, reviews.
         M_Games::factory(500)->recycle($developers)->create()->each(function ($game) use ($tags, $gameStates, $platforms, $stores, $users) {
             // Add 1-5 Game Images
-            M_GameImages::factory(rand(1, 5))->create(['game_id' => $game->id]);
+            for ($i = 0; $i < rand(1, 5); $i++) {
+                M_GameImages::factory()->create([
+                    'game_id' => $game->id,
+                    // The 'image' field will be filled by the MGameImagesFactory's definition
+                ]);
+            }
 
             // Attach 2-7 random tags
             $game->tags()->attach($tags->random(rand(2, min(7, $tags->count()))));

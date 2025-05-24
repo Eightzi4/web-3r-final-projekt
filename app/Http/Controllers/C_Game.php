@@ -48,8 +48,8 @@ class C_Game extends Controller
             ->get();
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
-            ['name' => 'Games', 'url' => route('search')], // Or discover if no general games list
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Games', 'url' => '#'], // Or discover if no general games list
             ['name' => Str::limit($game->name, 30)]
         ];
 
@@ -59,8 +59,8 @@ class C_Game extends Controller
     public function create()
     {
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
-            ['name' => 'Admin', 'url' => '#'], // Placeholder for admin dashboard
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')], // Placeholder for admin dashboard
             ['name' => 'Add Game']
         ];
         return view('games.V_CreateEdit', [
@@ -69,7 +69,7 @@ class C_Game extends Controller
             'tags' => M_Tags::orderBy('name')->get(),
             'platforms' => M_Platforms::orderBy('name')->get(),
             'stores' => M_Stores::orderBy('name')->get(),
-            'selectedTags' => [],
+            'selectedTags' => old('tags') ? explode(',', old('tags')) : [],
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
@@ -126,9 +126,9 @@ class C_Game extends Controller
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-                    $path = $image->storeAs('game_images', $filename, 'public');
+                    $image->storeAs('images', $filename, 'public');
                     M_GameImages::create([
-                        'image' => $path, // Store 'game_images/filename.ext'
+                        'image' => $filename, // Store 'game_images/filename.ext'
                         'game_id' => $game->id
                     ]);
                 }
@@ -147,8 +147,8 @@ class C_Game extends Controller
         $game->load('images', 'tags', 'prices'); // Eager load for the form
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
-            ['name' => 'Admin', 'url' => '#'],
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
             ['name' => 'Games', 'url' => route('admin.games.index')], // Assuming an admin games list page
             ['name' => 'Edit: ' . Str::limit($game->name, 20)]
         ];
@@ -159,7 +159,7 @@ class C_Game extends Controller
             'tags' => M_Tags::orderBy('name')->get(),
             'platforms' => M_Platforms::orderBy('name')->get(),
             'stores' => M_Stores::orderBy('name')->get(),
-            'selectedTags' => $game->tags->pluck('name')->toArray(),
+            'selectedTags' => old('tags') ? explode(',', old('tags')) : $game->tags->pluck('name')->toArray(),
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
@@ -181,7 +181,7 @@ class C_Game extends Controller
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'delete_images' => 'nullable|array', // For handling image deletion
-            'delete_images.*' => 'integer|exists:developer_images,id', // Or game_images,id
+            'delete_images.*' => 'integer|exists:game_images,id', // <<< CORRECTED TABLE NAME
         ]);
 
         DB::beginTransaction();
@@ -216,11 +216,16 @@ class C_Game extends Controller
 
             // Handle image deletion
             if ($request->has('delete_images')) {
-                foreach ($request->input('delete_images') as $imageId) {
-                    $image = M_GameImages::find($imageId);
-                    if ($image && $image->game_id == $game->id) { // Ensure image belongs to the game
-                        Storage::disk('public')->delete($image->image);
-                        $image->delete();
+                // Get image IDs that actually belong to this game to prevent deleting images from other games
+                $gameImageIdsToDelete = M_GameImages::where('game_id', $game->id)
+                    ->whereIn('id', $request->input('delete_images'))
+                    ->pluck('id');
+
+                foreach ($gameImageIdsToDelete as $imageId) {
+                    $image = M_GameImages::find($imageId); // Re-fetch to be safe, though not strictly necessary after pluck
+                    if ($image) { // Should always be true if plucked correctly
+                        Storage::disk('public')->delete('images/' . $image->image); // This is correct
+                        $image->delete(); // Delete the row from game_images table
                     }
                 }
             }
@@ -228,15 +233,15 @@ class C_Game extends Controller
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
-                    $path = $image->storeAs('game_images', $filename, 'public');
+                    $image->storeAs('images', $filename, 'public');
                     M_GameImages::create([
-                        'image' => $path,
+                        'image' => $filename,
                         'game_id' => $game->id
                     ]);
                 }
             }
             DB::commit();
-            return redirect()->route('games.edit', $game)->with('success', 'Game updated successfully!');
+            return redirect()->route('admin.games.edit', $game)->with('success', 'Game updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Game update failed: ' . $e->getMessage());
@@ -259,7 +264,7 @@ class C_Game extends Controller
             $game->prices()->delete();
 
             foreach ($game->images as $image) {
-                Storage::disk('public')->delete($image->image);
+                Storage::disk('public')->delete('images/' . $image->image);
                 $image->delete();
             }
 
@@ -278,7 +283,7 @@ class C_Game extends Controller
     public function destroyGameImage(M_GameImages $image) // Use Route Model Binding
     {
         // Optional: Add authorization check to ensure user can delete this
-        Storage::disk('public')->delete($image->image);
+        Storage::disk('public')->delete('images/' . $image->image);
         $image->delete();
         return back()->with('success', 'Image deleted successfully');
     }
@@ -291,8 +296,8 @@ class C_Game extends Controller
             ->paginate(15);
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
-            ['name' => 'Admin', 'url' => '#'],
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
             ['name' => 'Manage Games']
         ];
         return view('admin.games.V_AdminIndex', compact('games', 'breadcrumbs'));

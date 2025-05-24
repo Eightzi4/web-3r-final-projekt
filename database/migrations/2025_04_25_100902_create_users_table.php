@@ -24,6 +24,7 @@ return new class extends Migration
             // Your custom 'is_admin' column can be added here directly
             // instead of a separate migration if this is the primary user table creation.
             $table->boolean('is_admin')->default(false);
+            $table->boolean('is_banned')->default(false);
         });
     }
 

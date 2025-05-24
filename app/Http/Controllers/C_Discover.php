@@ -15,7 +15,7 @@ class C_Discover extends Controller
             ->paginate(12);
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Home', 'url' => route('home')],
             ['name' => 'Discover']
         ];
 

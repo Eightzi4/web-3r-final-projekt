@@ -52,7 +52,7 @@ class C_WishlistController extends Controller
         $wishlistedGames = $user->wishedGames()->with(['images', 'developer', 'latestPrice'])->paginate(10);
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Home', 'url' => route('home')],
             // ['name' => 'My Account', 'url' => route('profile.edit')], // Link to user profile page if it exists
             ['name' => 'My Wishlist']
         ];

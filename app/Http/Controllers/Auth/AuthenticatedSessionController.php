@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Providers\RouteServiceProvider;
+
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,7 +30,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Custom redirect logic
+        if (Auth::user()->is_admin) {
+            return redirect()->intended(route('admin.dashboard')); // Use intended with admin dashboard route
+        }
+
+        // For regular users, redirect to the HOME constant defined in RouteServiceProvider
+        return redirect()->intended(RouteServiceProvider::HOME);
     }
 
     /**

@@ -17,5 +17,9 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        require('@tailwindcss/forms'), // Optional: for better default form styling
+        require('@tailwindcss/typography'), // Optional: for the 'prose' class
+        require('@tailwindcss/aspect-ratio'), // Optional: if you use aspect ratio classes
+    ],
 };

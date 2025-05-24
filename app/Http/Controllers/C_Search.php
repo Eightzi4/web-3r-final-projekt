@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\M_Games;
 use App\Models\M_Tags;
-use App\Models\M_Prices; // Keep this if used in orderBy
+use App\Models\M_Prices;
+use App\Models\M_Platforms; // Added for platform filter
 use Illuminate\Http\Request;
 
 class C_Search extends Controller
@@ -12,10 +13,10 @@ class C_Search extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'query' => 'nullable|string|max:100', // Added search query
+            'query' => 'nullable|string|max:100',
             'tags' => 'nullable|array',
             'tags.*' => 'integer|exists:tags,id',
-            'sort' => 'nullable|in:price_asc,price_desc,name_asc,name_desc,newest', // Expanded sort options
+            'sort' => 'nullable|in:price_asc,price_desc,name_asc,name_desc,newest',
             'platform' => 'nullable|integer|exists:platforms,id',
             'min_price' => 'nullable|numeric|min:0',
             'max_price' => 'nullable|numeric|min:0|gte:min_price',
@@ -24,17 +25,24 @@ class C_Search extends Controller
         $gamesQuery = M_Games::query()->where('visible', true)
             ->with(['developer', 'images', 'tags', 'latestPrice']);
 
-        if ($request->filled('query')) {
-            $gamesQuery->where(function ($q) use ($request) {
-                $q->where('name', 'LIKE', '%' . $request->query . '%')
-                  ->orWhere('description', 'LIKE', '%' . $request->query . '%');
+        // Correct way to access the 'query' input value
+        $searchTerm = $request->input('query'); // Or use $validated['query'] if you prefer
+
+        if ($searchTerm) { // Check if $searchTerm is not null or empty
+            $gamesQuery->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhereHas('developer', function ($devQ) use ($searchTerm) { // Optional: search by developer name
+                        $devQ->where('name', 'LIKE', '%' . $searchTerm . '%');
+                  });
             });
         }
+        // ... rest of your C_Search controller (tags, platform, price filters, sort) ...
 
         if ($request->filled('tags')) {
             $gamesQuery->whereHas('tags', function ($q) use ($request) {
-                $q->whereIn('tags.id', $request->tags); // Use tags.id for clarity
-            }, '=', count($request->tags)); // Optional: Match ALL selected tags
+                $q->whereIn('tags.id', $request->tags);
+            }, '=', count($request->tags));
         }
 
         if($request->filled('platform')) {
@@ -42,8 +50,8 @@ class C_Search extends Controller
                 $q->where('platforms.id', $request->platform);
             });
         }
-
-        if ($request->filled('min_price')) {
+        // ... (min_price, max_price, sort logic remains the same) ...
+         if ($request->filled('min_price')) {
             $gamesQuery->whereHas('latestPrice', function ($q) use ($request) {
                 $q->where('price', '>=', $request->min_price);
             });
@@ -61,7 +69,7 @@ class C_Search extends Controller
                     $gamesQuery->orderBy(
                         M_Prices::select('price')
                             ->whereColumn('game_id', 'games.id')
-                            ->latest('date') // ensure it's the latest price
+                            ->latest('date')
                             ->limit(1),
                         'asc'
                     );
@@ -81,22 +89,19 @@ class C_Search extends Controller
                 case 'name_desc':
                     $gamesQuery->orderBy('name', 'desc');
                     break;
-                // Add case for 'newest' if you have a release_date or created_at on games table
-                // case 'newest':
-                //     $gamesQuery->orderBy('release_date', 'desc'); // or games.created_at
-                //     break;
             }
         } else {
-            $gamesQuery->orderBy('name', 'asc'); // Default sort
+            $gamesQuery->orderBy('name', 'asc');
         }
+
 
         $games = $gamesQuery->paginate(12)->appends($request->query());
 
         $tags = M_Tags::orderBy('name')->get();
-        $platforms = \App\Models\M_Platforms::orderBy('name')->get();
+        $platforms = M_Platforms::orderBy('name')->get(); // Corrected model name
 
         $breadcrumbs = [
-            ['name' => 'Home', 'url' => route('discover')],
+            ['name' => 'Home', 'url' => route('home')],
             ['name' => 'Search']
         ];
 

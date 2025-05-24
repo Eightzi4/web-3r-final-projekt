@@ -6,14 +6,29 @@ use App\Http\Controllers\C_Search;
 use App\Http\Controllers\C_Game;
 use App\Http\Controllers\C_ReviewController;
 use App\Http\Controllers\C_WishlistController;
+use App\Http\Controllers\Admin\C_Admin_SiteInfoController; // You'll create this
+use App\Http\Controllers\Admin\C_Admin_UserController;   // You'll create this
+use App\Models\M_Developers;
+use App\Models\M_Games;
+use App\Models\M_Platforms;
+use App\Models\M_Reviews;
+use App\Models\M_Stores;
+use App\Models\M_Tags;
+use App\Models\User;
 
 // Default Laravel Auth routes (if using Breeze)
 // require __DIR__.'/auth.php'; // This line is usually added by Breeze
 
 // Public Routes
-Route::get('/', [C_Discover::class, 'index'])->name('discover'); // Homepage
+Route::get('/', function () {
+    $breadcrumbs = [['name' => 'Home']];
+    return view('V_Home', compact('breadcrumbs')); // New home view
+})->name('home');
+Route::get('/discover', [C_Discover::class, 'index'])->name('discover');
 Route::get('/search', [C_Search::class, 'index'])->name('search');
 Route::get('/games/{game}', [C_Game::class, 'show'])->name('games.show')->where('game', '[0-9]+'); // Ensure 'game' is numeric if using ID
+Route::get('/site-info', [C_Admin_SiteInfoController::class, 'index'])->name('siteinfo');
+Route::resource('/users', C_Admin_UserController::class)->except(['show', 'create', 'store']); // Common for user management
 
 // Authenticated User Routes
 Route::middleware(['auth'])->group(function () {
@@ -36,8 +51,28 @@ Route::middleware(['auth'])->group(function () {
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
-        $breadcrumbs = [['name' => 'Admin Dashboard']];
-        return view('admin.V_Dashboard', compact('breadcrumbs')); // Create this view
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Admin Dashboard']
+        ];
+
+        // Fetching stats
+        $stats = [
+            'totalGames' => M_Games::count(),
+            'visibleGames' => M_Games::where('visible', true)->count(),
+            'hiddenGames' => M_Games::where('visible', false)->count(),
+            'totalUsers' => User::count(),
+            'adminUsers' => User::where('is_admin', true)->count(),
+            'regularUsers' => User::where('is_admin', false)->count(),
+            'totalDevelopers' => M_Developers::count(),
+            'totalReviews' => M_Reviews::count(),
+            'totalTags' => M_Tags::count(),
+            'totalPlatforms' => M_Platforms::count(),
+            'totalStores' => M_Stores::count(),
+            // You can add more specific stats, e.g., average game price, games per developer, etc.
+        ];
+
+        return view('admin.V_Dashboard', compact('breadcrumbs', 'stats')); // Pass 'stats'
     })->name('dashboard');
 
     Route::get('/games', [C_Game::class, 'adminIndex'])->name('games.index'); // Admin list of games
@@ -51,6 +86,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Add routes for managing Tags, Developers, Platforms, Stores, Users etc. here
     // Example for Tags:
     // Route::resource('tags', C_Admin_TagController::class);
+    Route::get('/site-info', [C_Admin_SiteInfoController::class, 'index'])->name('siteinfo'); // Full name: admin.siteinfo
+    // Your user management routes:
+    Route::resource('/users', C_Admin_UserController::class)->except(['show', 'create', 'store']);
 });
 
 // If not using Laravel Breeze for auth, you might need to define these manually:
@@ -65,4 +103,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 //     return view('errors.404'); // Create a custom 404 page
 // });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

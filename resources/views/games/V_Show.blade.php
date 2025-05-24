@@ -86,7 +86,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
                         @foreach ($game->images as $image)
                             <div class="relative group">
-                                <img src="{{ asset('storage/' . $image->image) }}" alt="Game image"
+                                <img src="{{ asset('storage/images/' . $image->image) }}" alt="Game image"
                                     class="w-full h-24 object-cover rounded">
                             </div>
                         @endforeach
