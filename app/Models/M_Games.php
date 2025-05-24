@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth; // Added for wishlist check
+use Database\Factories\GameFactory;
 
 class M_Games extends Model
 {
@@ -35,12 +36,10 @@ class M_Games extends Model
         return $this->hasMany(M_GameImages::class, 'game_id');
     }
 
-    public function gameStates() // Assuming 'M_GameStates' defines state types (e.g. Released, Beta)
+    public function gameStates()
     {
-        return $this->belongsToMany(M_GameStates::class, 'games_states_pivot', 'game_id', 'game_state_id');
-        // 'games_states_pivot' would be the name of your pivot table.
-        // If 'games_states' is the pivot table, then it was:
-        // return $this->belongsToMany(M_GameStates::class, 'games_states', 'game_id', 'game_state_id');
+        // return $this->belongsToMany(M_GameStates::class, 'games_states_pivot', 'game_id', 'game_state_id'); // Old
+        return $this->belongsToMany(M_GameStates::class, 'games_states', 'game_id', 'game_state_id'); // New - matches migration
     }
 
     public function prices()
@@ -115,5 +114,10 @@ class M_Games extends Model
         // Ensure reviews are loaded with 'rating' or query it.
         // Add 'rating' to M_Reviews fillable if it's not there.
         return $this->reviews()->avg('rating');
+    }
+
+    protected static function newFactory()
+    {
+        return GameFactory::new();
     }
 }

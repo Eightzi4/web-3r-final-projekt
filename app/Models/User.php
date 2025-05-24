@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens; // <<< THIS LINE
+use Database\Factories\UserFactory;
 
 class User extends Authenticatable // Extend Authenticatable
 {
@@ -62,5 +63,10 @@ class User extends Authenticatable // Extend Authenticatable
     public function wishedGames()
     {
         return $this->belongsToMany(M_Games::class, 'wished_games', 'user_id', 'game_id');
+    }
+
+    protected static function newFactory()
+    {
+        return UserFactory::new();
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\GameStateFactory;
 
 class M_GameStates extends Model // This model represents a state like "Released", "Beta"
 {
@@ -20,10 +21,12 @@ class M_GameStates extends Model // This model represents a state like "Released
 
     public function games()
     {
-        // A game state (e.g. "Released") can apply to many games
-        return $this->belongsToMany(M_Games::class, 'games_states_pivot', 'game_state_id', 'game_id');
-        // 'games_states_pivot' is the conventional name for the pivot table.
-        // If your pivot table is indeed named 'games_states', then:
-        // return $this->belongsToMany(M_Games::class, 'games_states', 'game_state_id', 'game_id');
+        // return $this->belongsToMany(M_Games::class, 'games_states_pivot', 'game_state_id', 'game_id'); // Old
+        return $this->belongsToMany(M_Games::class, 'games_states', 'game_state_id', 'game_id'); // New - matches migration
+    }
+
+    protected static function newFactory()
+    {
+        return GameStateFactory::new();
     }
 }

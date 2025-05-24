@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\ReviewFactory;
 
 class M_Reviews extends Model
 {
@@ -22,5 +23,10 @@ class M_Reviews extends Model
     public function game()
     {
         return $this->belongsTo(M_Games::class, 'game_id');
+    }
+
+    protected static function newFactory()
+    {
+        return ReviewFactory::new();
     }
 }

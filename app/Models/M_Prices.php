@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\PriceFactory;
 
 class M_Prices extends Model
 {
     use HasFactory;
 
-    // public $timestamps = false; // Consider if you want created_at/updated_at for price records
-    // If 'date' field serves as creation date, then false is fine.
+    public $timestamps = false;
 
     protected $table = 'prices';
     protected $fillable = [
@@ -30,5 +30,10 @@ class M_Prices extends Model
     public function store()
     {
         return $this->belongsTo(M_Stores::class, 'store_id');
+    }
+
+    protected static function newFactory()
+    {
+        return PriceFactory::new();
     }
 }

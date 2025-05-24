@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\StoreFactory;
 
 class M_Stores extends Model
 {
@@ -15,5 +16,10 @@ class M_Stores extends Model
     public function prices()
     {
         return $this->hasMany(M_Prices::class, 'store_id');
+    }
+
+    protected static function newFactory()
+    {
+        return StoreFactory::new();
     }
 }

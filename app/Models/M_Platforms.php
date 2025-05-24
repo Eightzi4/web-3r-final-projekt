@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\PlatformFactory;
 
 class M_Platforms extends Model
 {
@@ -22,5 +23,10 @@ class M_Platforms extends Model
     public function games()
     {
         return $this->belongsToMany(M_Games::class, 'prices', 'platform_id', 'game_id')->distinct();
+    }
+
+    protected static function newFactory()
+    {
+        return PlatformFactory::new();
     }
 }

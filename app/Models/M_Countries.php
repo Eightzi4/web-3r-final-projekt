@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Database\Factories\CountryFactory;
+
 
 class M_Countries extends Model
 {
@@ -15,5 +17,10 @@ class M_Countries extends Model
     public function developers()
     {
         return $this->hasMany(M_Developers::class, 'country_id');
+    }
+
+    protected static function newFactory()
+    {
+        return CountryFactory::new();
     }
 }
