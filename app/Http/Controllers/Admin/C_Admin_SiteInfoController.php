@@ -35,7 +35,7 @@ class C_Admin_SiteInfoController extends Controller
             'totalUsers' => User::count(),
             'adminUsers' => User::where('is_admin', true)->count(),
             'regularUsers' => User::where('is_admin', false)->count(),
-            // 'bannedUsers' => User::where('is_banned', true)->count(), // If you implement is_banned
+            'bannedUsers' => User::where('is_banned', true)->count(), // If you implement is_banned
 
             // Other Entities
             'totalDevelopers' => M_Developers::count(),

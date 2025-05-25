@@ -54,7 +54,8 @@ class DatabaseSeeder extends Seeder
 
         // --- Seed Users ---
         User::factory()->admin()->create(); // Create one admin
-        User::factory(100)->create(); // Create 100 regular users
+        User::factory(90)->create(); // 90 regular users
+        User::factory(10)->state(['is_banned' => true])->create();  // 10 banned users
         $users = User::where('is_admin', false)->get(); // Get non-admin users for reviews/wishlists etc.
 
         // --- Seed Basic Lookup Tables ---
@@ -137,9 +138,9 @@ class DatabaseSeeder extends Seeder
                 // Ensure a user doesn't own a game they also wishlisted for simplicity here,
                 // or handle that logic if needed.
                 foreach ($users->random(floor($users->count() * fake()->randomFloat(2, 0.10, 0.30))) as $user) {
-                     if (!$user->wishedGames()->where('game_id', $game->id)->exists()) {
+                    if (!$user->wishedGames()->where('game_id', $game->id)->exists()) {
                         $user->ownedGames()->attach($game->id);
-                     }
+                    }
                 }
             }
         });
@@ -154,11 +155,11 @@ class DatabaseSeeder extends Seeder
 
         // Calculate total rows (approximate)
         $totalRows = User::count() + M_Countries::count() + M_Tags::count() + M_Platforms::count() +
-                     M_Stores::count() + M_GameStates::count() + M_Developers::count() +
-                     M_DeveloperImages::count() + M_Games::count() + M_GameImages::count() +
-                     M_Prices::count() + M_Reviews::count() +
-                     DB::table('games_tags')->count() + DB::table('games_states')->count() +
-                     DB::table('owned_games')->count() + DB::table('wished_games')->count();
+            M_Stores::count() + M_GameStates::count() + M_Developers::count() +
+            M_DeveloperImages::count() + M_Games::count() + M_GameImages::count() +
+            M_Prices::count() + M_Reviews::count() +
+            DB::table('games_tags')->count() + DB::table('games_states')->count() +
+            DB::table('owned_games')->count() + DB::table('wished_games')->count();
 
         $this->command->info("Approximately {$totalRows} rows created in total.");
     }

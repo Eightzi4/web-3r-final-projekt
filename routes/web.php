@@ -6,6 +6,8 @@ use App\Http\Controllers\C_Search;
 use App\Http\Controllers\C_Game;
 use App\Http\Controllers\C_ReviewController;
 use App\Http\Controllers\C_WishlistController;
+use App\Http\Controllers\C_TagPageController;
+use App\Http\Controllers\C_DeveloperPageController;
 use App\Http\Controllers\Admin\C_Admin_SiteInfoController; // You'll create this
 use App\Http\Controllers\Admin\C_Admin_UserController;   // You'll create this
 use App\Models\M_Developers;
@@ -29,6 +31,11 @@ Route::get('/search', [C_Search::class, 'index'])->name('search');
 Route::get('/games/{game}', [C_Game::class, 'show'])->name('games.show')->where('game', '[0-9]+'); // Ensure 'game' is numeric if using ID
 Route::get('/site-info', [C_Admin_SiteInfoController::class, 'index'])->name('siteinfo');
 Route::resource('/users', C_Admin_UserController::class)->except(['show', 'create', 'store']); // Common for user management
+Route::get('/developers/{developer}', [C_DeveloperPageController::class, 'show'])->name('developers.show');
+Route::get('/tags/{tag}', [C_TagPageController::class, 'show'])->name('tags.show');
+Route::get('/banned', function () {
+    return view('auth.banned'); // Create this view
+})->name('banned');
 
 // Authenticated User Routes
 Route::middleware(['auth'])->group(function () {

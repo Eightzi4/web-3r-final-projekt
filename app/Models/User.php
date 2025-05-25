@@ -24,7 +24,8 @@ class User extends Authenticatable // Extend Authenticatable
         'name',
         'email',
         'password',
-        'is_admin', // Add this if you added the column
+        'is_admin',
+        'is_banned',
         // Add any other fields from your original M_Users2 if they are fillable
     ];
 
@@ -46,6 +47,7 @@ class User extends Authenticatable // Extend Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean', // Cast to boolean
+        'is_banned' => 'boolean', // Cast to boolean
     ];
 
     public function ownedGames()

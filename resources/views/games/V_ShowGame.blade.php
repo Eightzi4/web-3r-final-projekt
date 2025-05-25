@@ -115,14 +115,43 @@
                         <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6">User Reviews
                             ({{ $game->reviews->count() }})</h2>
                         @auth
-                            <div class="mb-8 bg-gray-50 dark:bg-gray-700/50 p-5 md:p-6 rounded-xl shadow-lg">
-                                {{-- Increased padding, rounding, shadow --}}
+                            <div class="mb-8 bg-gray-50 dark:bg-gray-700/50 p-5 md:p-6 rounded-xl shadow-lg"
+                                x-data="{
+                                    reviewComment: `{{ old('comment', '') }}`.trim(), // Initialize with old or empty, trim spaces
+                                    syncTrixContent() {
+                                        let editorElement = document.getElementById('trix-review-editor');
+                                        if (editorElement && editorElement.editor) {
+                                            this.reviewComment = editorElement.editor.getDocument().toString().trim() === '' ? '' : editorElement.editor.getHTML();
+                                        }
+                                    }
+                                }" x-init="const editorElement = document.getElementById('trix-review-editor');
+                                if (editorElement) {
+                                    // Load initial HTML content into Trix
+                                    if (reviewComment) {
+                                        editorElement.editor.loadHTML(reviewComment);
+                                    }
+                                    // Listen for Trix changes and update Alpine + hidden input
+                                    editorElement.addEventListener('trix-change', function(event) {
+                                        Alpine.store('reviewFormData').comment = event.target.value; // Update hidden input directly via name
+                                    });
+                                    // Initial sync if there's old data (after Trix is fully initialized)
+                                    setTimeout(() => {
+                                        if (reviewComment && editorElement.editor.getDocument().toString().trim() === '' && editorElement.editor.getHTML() !== reviewComment) {
+                                            editorElement.editor.loadHTML(reviewComment);
+                                        }
+                                    }, 100); // Small delay for Trix to init
+                                }
+                                // This Alpine store is an alternative to direct x-model on hidden for more complex scenarios
+                                // For this simple case, trix-change updating the hidden input directly is often enough
+                                if (typeof Alpine.store('reviewFormData') === 'undefined') {
+                                    Alpine.store('reviewFormData', { comment: reviewComment });
+                                } else {
+                                    Alpine.store('reviewFormData').comment = reviewComment;
+                                }">
                                 <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Leave a Review</h3>
                                 <form action="{{ route('reviews.store', $game) }}" method="POST" class="space-y-4">
                                     @csrf
-                                    {{-- Increased space --}}
-                                    {{-- ... (review form inputs - can add more padding/margin to labels and inputs if needed) ... --}}
-                                    {{-- Example for rating --}}
+                                    {{-- Rating input remains the same --}}
                                     <div class="flex items-center space-x-2" x-data="{ rating: {{ old('rating', 0) }}, hoverRating: 0 }">
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Your
                                             Rating:</span>
@@ -151,34 +180,37 @@
                                     @enderror
 
                                     <div>
-                                        <label for="title" class="sr-only">Review Title</label>
-                                        <input type="text" name="title" id="title"
-                                            placeholder="Review Title (e.g., Amazing Game!)" value="{{ old('title') }}"
+                                        <label for="review_title"
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Review
+                                            Title</label>
+                                        <input type="text" name="title" id="review_title"
+                                            placeholder="e.g., A Masterpiece!" value="{{ old('title') }}"
                                             class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                         @error('title')
                                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
+
                                     <div>
-                                        <label for="comment" class="sr-only">Your Review</label>
-                                        <textarea name="comment" id="comment" rows="4" placeholder="Share your thoughts..."
-                                            class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">{{ old('comment') }}</textarea>
+                                        <label for="trix-review-editor"
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Your
+                                            Review</label>
+                                        {{-- This hidden input will hold the actual HTML content from Trix for submission --}}
+                                        <input id="review_comment_hidden" type="hidden" name="comment"
+                                            x-bind:value="$store.reviewFormData.comment">
+                                        {{-- The Trix editor element. The 'input' attribute links it to the hidden input above. --}}
+                                        <trix-editor id="trix-review-editor" input="review_comment_hidden"
+                                            class="trix-content-input"></trix-editor>
                                         @error('comment')
                                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
+
                                     <button type="submit"
                                         class="px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition-colors">Submit
                                         Review</button>
                                 </form>
                             </div>
-                        @else
-                            <p
-                                class="text-gray-600 dark:text-gray-400 mb-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-center">
-                                <a href="{{ route('login') }}" class="text-indigo-600 hover:underline font-semibold">Log
-                                    in</a> or <a href="{{ route('register') }}"
-                                    class="text-indigo-600 hover:underline font-semibold">register</a> to leave a review.
-                            </p>
                         @endauth
 
                         @if ($game->reviews->isNotEmpty())
@@ -210,8 +242,10 @@
                                         </div>
                                         <h4 class="font-semibold text-md text-gray-700 dark:text-gray-200 mb-2">
                                             {{ $review->title }}</h4>
-                                        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                            {{ nl2br(e($review->comment)) }}</p>
+                                        {{-- Use {!! !!} for unescaped HTML and add the .trix-content class for styling --}}
+                                        <div class="trix-content">
+                                            {!! $review->comment !!}
+                                        </div>
                                         @auth
                                             @if (Auth::id() == $review->user_id || Auth::user()->is_admin)
                                                 <div class="mt-3 text-xs flex justify-end"> {{-- Aligned to end --}}
@@ -314,8 +348,17 @@
                                         <div>
                                             <span
                                                 class="font-semibold text-gray-800 dark:text-gray-100 block">{{ $priceInfo->platform->name }}</span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400 block">via
-                                                {{ $priceInfo->store->name }}</span>
+                                            {{-- Make store name a link if store has a website_link --}}
+                                            @if ($priceInfo->store->website_link)
+                                                <a href="{{ $priceInfo->store->website_link }}" target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline block">
+                                                    via {{ $priceInfo->store->name }}
+                                                </a>
+                                            @else
+                                                <span class="text-xs text-gray-500 dark:text-gray-400 block">via
+                                                    {{ $priceInfo->store->name }}</span>
+                                            @endif
                                         </div>
                                         <div class="text-right">
                                             <span
@@ -344,7 +387,9 @@
                                     class="flex justify-between items-center border-b border-gray-200 dark:border-gray-600 pb-2">
                                     <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Developer</dt>
                                     <dd class="text-sm text-gray-900 dark:text-gray-100 font-semibold text-right">
-                                        {{ $game->developer->name }}</dd>
+                                        <a href="{{ route('developers.show', $game->developer) }}"
+                                            class="hover:underline font-medium">{{ $game->developer->name }}</a>
+                                    </dd>
                                 </div>
                             @endif
                             {{-- Example: Release Date (add this to your game model and migration if you have it) --}}
@@ -373,8 +418,15 @@
                                     <dt class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Tags</dt>
                                     <dd class="flex flex-wrap gap-2">
                                         @foreach ($game->tags as $tag)
-                                            <span
-                                                class="px-2.5 py-1 text-xs font-semibold text-indigo-800 bg-indigo-100 dark:text-indigo-100 dark:bg-indigo-700 rounded-full shadow-sm">{{ $tag->name }}</span>
+                                            <a href="{{ route('tags.show', $tag) }}"
+                                                class="flex items-center px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                                                title="{{ $tag->description ?? $tag->name }}">
+                                                @if ($tag->color)
+                                                    <span class="w-2 h-2 rounded-full mr-1.5"
+                                                        style="background-color: {{ $tag->color }};"></span>
+                                                @endif
+                                                {{ $tag->name }}
+                                            </a>
                                         @endforeach
                                     </dd>
                                 </div>

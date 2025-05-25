@@ -22,13 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // For now, just adding 'admin' is the primary goal.
         ]);
 
-        // You can also register global middleware:
-        // $middleware->append(YourGlobalMiddleware::class);
-
-        // Or middleware groups:
-        // $middleware->group('web', [
-        //     // ... web middleware (many are now auto-included)
-        // ]);
+        $middleware->appendToGroup('web', \App\Http\Middleware\CheckBanned::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

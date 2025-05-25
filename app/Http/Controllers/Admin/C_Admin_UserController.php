@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\User; // Your User model
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; // At the top
 
 class C_Admin_UserController extends Controller
 {
@@ -20,8 +22,13 @@ class C_Admin_UserController extends Controller
 
     public function edit(User $user)
     {
-        $breadcrumbs = [ /* ... */ ['name' => 'Edit User']];
-        return view('admin.users.V_Edit', compact('user', 'breadcrumbs')); // Create this view
+        $breadcrumbs = [
+            ['name' => 'Home', 'url' => route('home')],
+            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
+            ['name' => 'Manage Users', 'url' => route('admin.users.index')],
+            ['name' => 'Edit: ' . Str::limit($user->name, 20)]
+        ];
+        return view('admin.users.V_Edit', compact('user', 'breadcrumbs'));
     }
 
     public function update(Request $request, User $user)
@@ -30,7 +37,7 @@ class C_Admin_UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'is_admin' => 'sometimes|boolean',
-            // Add 'is_banned' => 'sometimes|boolean' if you add that
+            'is_banned' => 'sometimes|boolean'
         ]);
 
         $user->name = $validated['name'];

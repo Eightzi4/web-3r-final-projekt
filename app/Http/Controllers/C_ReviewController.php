@@ -19,7 +19,7 @@ class C_ReviewController extends Controller
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'title' => 'required|string|max:100',
-            'comment' => 'required|string|max:5000',
+            'comment' => 'required|string|max:10000',
         ]);
 
         // Check if user already reviewed this game (optional: allow editing instead)

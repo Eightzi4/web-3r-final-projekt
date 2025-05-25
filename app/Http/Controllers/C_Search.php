@@ -22,8 +22,11 @@ class C_Search extends Controller
             'max_price' => 'nullable|numeric|min:0|gte:min_price',
         ]);
 
-        $gamesQuery = M_Games::query()->where('visible', true)
-            ->with(['developer', 'images', 'tags', 'latestPrice']);
+        $gamesQuery = M_Games::query()->with(['developer', 'images', 'tags', 'latestPrice']);
+
+        if (!(auth()->check() && auth()->user()->is_admin)) {
+            $gamesQuery->where('visible', true); // Only apply visibility filter for non-admins
+        }
 
         // Correct way to access the 'query' input value
         $searchTerm = $request->input('query'); // Or use $validated['query'] if you prefer
@@ -31,10 +34,10 @@ class C_Search extends Controller
         if ($searchTerm) { // Check if $searchTerm is not null or empty
             $gamesQuery->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
-                  ->orWhereHas('developer', function ($devQ) use ($searchTerm) { // Optional: search by developer name
+                    ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhereHas('developer', function ($devQ) use ($searchTerm) { // Optional: search by developer name
                         $devQ->where('name', 'LIKE', '%' . $searchTerm . '%');
-                  });
+                    });
             });
         }
         // ... rest of your C_Search controller (tags, platform, price filters, sort) ...
@@ -45,13 +48,13 @@ class C_Search extends Controller
             }, '=', count($request->tags));
         }
 
-        if($request->filled('platform')) {
-            $gamesQuery->whereHas('prices.platform', function($q) use ($request){
+        if ($request->filled('platform')) {
+            $gamesQuery->whereHas('prices.platform', function ($q) use ($request) {
                 $q->where('platforms.id', $request->platform);
             });
         }
         // ... (min_price, max_price, sort logic remains the same) ...
-         if ($request->filled('min_price')) {
+        if ($request->filled('min_price')) {
             $gamesQuery->whereHas('latestPrice', function ($q) use ($request) {
                 $q->where('price', '>=', $request->min_price);
             });
@@ -75,7 +78,7 @@ class C_Search extends Controller
                     );
                     break;
                 case 'price_desc':
-                     $gamesQuery->orderBy(
+                    $gamesQuery->orderBy(
                         M_Prices::select('price')
                             ->whereColumn('game_id', 'games.id')
                             ->latest('date')
