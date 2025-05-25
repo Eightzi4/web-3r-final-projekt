@@ -14,6 +14,14 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'custom-dark-bg': '#2A2E3C',      // Main form/editor background
+                'custom-dark-toolbar': '#323846', // Toolbar background
+                'custom-dark-text': '#CBD5E1',    // Like slate-300
+                'custom-dark-icon': '#94A3B8',   // Like slate-400
+                'custom-accent': '#6366F1',      // Like indigo-500 or your purple
+                'custom-accent-hover': '#4F46E5',// Like indigo-600
+            }
         },
     },
 

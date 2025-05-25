@@ -1,7 +1,7 @@
 import './bootstrap';
-
-import "trix/dist/trix.css"; // Import Trix CSS here
-import "trix";              // Import Trix JS
+import 'quill/dist/quill.core.css';
+import 'quill/dist/quill.bubble.css';
+import 'quill/dist/quill.snow.css';
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;

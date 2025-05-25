@@ -114,44 +114,16 @@
                     <section id="reviews" class="pt-6 border-t border-gray-200 dark:border-gray-700">
                         <h2 class="text-2xl font-semibold text-gray-800 dark:text-white mb-6">User Reviews
                             ({{ $game->reviews->count() }})</h2>
+
+                        {{-- THIS IS THE SECTION WE ARE FOCUSING ON --}}
                         @auth
-                            <div class="mb-8 bg-gray-50 dark:bg-gray-700/50 p-5 md:p-6 rounded-xl shadow-lg"
-                                x-data="{
-                                    reviewComment: `{{ old('comment', '') }}`.trim(), // Initialize with old or empty, trim spaces
-                                    syncTrixContent() {
-                                        let editorElement = document.getElementById('trix-review-editor');
-                                        if (editorElement && editorElement.editor) {
-                                            this.reviewComment = editorElement.editor.getDocument().toString().trim() === '' ? '' : editorElement.editor.getHTML();
-                                        }
-                                    }
-                                }" x-init="const editorElement = document.getElementById('trix-review-editor');
-                                if (editorElement) {
-                                    // Load initial HTML content into Trix
-                                    if (reviewComment) {
-                                        editorElement.editor.loadHTML(reviewComment);
-                                    }
-                                    // Listen for Trix changes and update Alpine + hidden input
-                                    editorElement.addEventListener('trix-change', function(event) {
-                                        Alpine.store('reviewFormData').comment = event.target.value; // Update hidden input directly via name
-                                    });
-                                    // Initial sync if there's old data (after Trix is fully initialized)
-                                    setTimeout(() => {
-                                        if (reviewComment && editorElement.editor.getDocument().toString().trim() === '' && editorElement.editor.getHTML() !== reviewComment) {
-                                            editorElement.editor.loadHTML(reviewComment);
-                                        }
-                                    }, 100); // Small delay for Trix to init
-                                }
-                                // This Alpine store is an alternative to direct x-model on hidden for more complex scenarios
-                                // For this simple case, trix-change updating the hidden input directly is often enough
-                                if (typeof Alpine.store('reviewFormData') === 'undefined') {
-                                    Alpine.store('reviewFormData', { comment: reviewComment });
-                                } else {
-                                    Alpine.store('reviewFormData').comment = reviewComment;
-                                }">
+                            {{-- "Leave a Review" Form for authenticated users --}}
+                            <div class="mb-8 bg-gray-50 dark:bg-gray-800/60 p-5 md:p-6 rounded-xl shadow-xl">
                                 <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Leave a Review</h3>
-                                <form action="{{ route('reviews.store', $game) }}" method="POST" class="space-y-4">
+                                <form action="{{ route('reviews.store', $game) }}" method="POST" class="space-y-4"
+                                    id="review-form">
                                     @csrf
-                                    {{-- Rating input remains the same --}}
+                                    {{-- Rating input --}}
                                     <div class="flex items-center space-x-2" x-data="{ rating: {{ old('rating', 0) }}, hoverRating: 0 }">
                                         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Your
                                             Rating:</span>
@@ -159,12 +131,9 @@
                                             <template x-for="star in 5" :key="star">
                                                 <button type="button" @click="rating = star"
                                                     @mouseenter="hoverRating = star" @mouseleave="hoverRating = 0"
-                                                    :class="{
-                                                        'text-yellow-400': (hoverRating || rating) >=
-                                                            star,
-                                                        'text-gray-300 dark:text-gray-600 hover:text-yellow-300': (
-                                                            hoverRating || rating) < star
-                                                    }"
+                                                    :class="{ 'text-yellow-400': (hoverRating || rating) >=
+                                                        star, 'text-gray-300 dark:text-gray-600 hover:text-yellow-300': (
+                                                            hoverRating || rating) < star }"
                                                     class="w-7 h-7 cursor-pointer transition-colors">
                                                     <svg class="w-full h-full" fill="currentColor" viewBox="0 0 20 20">
                                                         <path
@@ -179,28 +148,27 @@
                                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                     @enderror
 
+                                    {{-- Title input --}}
                                     <div>
                                         <label for="review_title"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Review
                                             Title</label>
                                         <input type="text" name="title" id="review_title"
                                             placeholder="e.g., A Masterpiece!" value="{{ old('title') }}"
-                                            class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                            class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                                         @error('title')
                                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
 
+                                    {{-- Quill editor for comment --}}
                                     <div>
-                                        <label for="trix-review-editor"
+                                        <label for="review_comment_quill"
                                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Your
                                             Review</label>
-                                        {{-- This hidden input will hold the actual HTML content from Trix for submission --}}
-                                        <input id="review_comment_hidden" type="hidden" name="comment"
-                                            x-bind:value="$store.reviewFormData.comment">
-                                        {{-- The Trix editor element. The 'input' attribute links it to the hidden input above. --}}
-                                        <trix-editor id="trix-review-editor" input="review_comment_hidden"
-                                            class="trix-content-input"></trix-editor>
+                                        <div id="quill-editor-container" style="min-height: 150px;">{!! old('comment') !!}
+                                        </div>
+                                        <input type="hidden" name="comment" id="review_comment_quill">
                                         @error('comment')
                                             <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                         @enderror
@@ -211,10 +179,28 @@
                                         Review</button>
                                 </form>
                             </div>
+                        @else
+                            {{-- If user is NOT authenticated --}}
+                            <div class="mb-8 p-6 bg-gray-100 dark:bg-slate-800 rounded-xl shadow-lg text-center">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-3">Want to share your
+                                    thoughts?</h3>
+                                <p class="text-gray-600 dark:text-gray-300 mb-5">
+                                    <a href="{{ route('login', ['redirect' => url()->current()]) }}"
+                                        class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold hover:underline">Log
+                                        in</a>
+                                    or
+                                    <a href="{{ route('register', ['redirect' => url()->current()]) }}"
+                                        class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 font-semibold hover:underline">create
+                                        an account</a>
+                                    to leave a review.
+                                </p>
+                            </div>
                         @endauth
 
+                        {{-- Display existing reviews --}}
                         @if ($game->reviews->isNotEmpty())
-                            <div class="space-y-8"> {{-- Increased space between reviews --}}
+                            {{-- ... (code for displaying reviews remains the same) ... --}}
+                            <div class="space-y-8">
                                 @foreach ($game->reviews()->latest()->take(5)->get() as $review)
                                     <article class="p-5 md:p-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl shadow-lg">
                                         {{-- Increased padding, rounding, shadow --}}
@@ -261,12 +247,12 @@
                                         @endauth
                                     </article>
                                 @endforeach
-                                {{-- Add link to all reviews page if paginating --}}
                             </div>
                         @else
                             <p
                                 class="text-gray-600 dark:text-gray-400 p-4 bg-gray-100 dark:bg-gray-700/30 rounded-lg text-center">
-                                No reviews yet. Be the first one!</p>
+                                Be the first to review this game!
+                            </p>
                         @endif
                     </section>
 
@@ -450,5 +436,72 @@
             </div>
         </section>
     @endif
+
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+
+                const editorContainer = document.getElementById('quill-editor-container');
+                const hiddenInput = document.getElementById('review_comment_quill');
+                const reviewForm = document.getElementById('review-form');
+
+                if (editorContainer) {
+                    try {
+                        var quill = new Quill('#quill-editor-container', {
+                            theme: 'snow',
+                            modules: {
+                                toolbar: [ /* ... your toolbar config ... */
+                                    [{
+                                        'header': [1, 2, 3, false]
+                                    }],
+                                    ['bold', 'italic', 'underline', 'strike'],
+                                    ['blockquote', 'code-block'],
+                                    [{
+                                        'list': 'ordered'
+                                    }, {
+                                        'list': 'bullet'
+                                    }],
+                                    [{
+                                        'indent': '-1'
+                                    }, {
+                                        'indent': '+1'
+                                    }],
+                                    ['link', 'image', 'video'],
+                                    ['clean']
+                                ]
+                            },
+                            placeholder: 'Share your thoughts about this game...'
+                        });
+
+                        if (hiddenInput) {
+                            quill.on('text-change', function(delta, oldDelta, source) {
+                                let htmlContent = quill.root.innerHTML;
+                                hiddenInput.value = (htmlContent === '<p><br></p>') ? '' : htmlContent;
+                                // console.log('Quill content changed, hidden input updated:', hiddenInput.value);
+                            });
+                        } else {
+                            console.error('Hidden input for Quill comment not found!');
+                        }
+
+                        if (reviewForm && hiddenInput) {
+                            reviewForm.addEventListener('submit', function() {
+                                let htmlContent = quill.root.innerHTML;
+                                hiddenInput.value = (htmlContent === '<p><br></p>') ? '' : htmlContent;
+                                console.log('Form submit, hidden input value set to:', hiddenInput.value);
+                            });
+                        } else {
+                            if (!reviewForm) console.error('Review form not found!');
+                            if (!hiddenInput) console.error(
+                                'Hidden input for Quill comment not found (in form submit)!');
+                        }
+
+                    } catch (e) {
+                        console.error('Error initializing Quill:', e); // <<< Catch potential errors
+                    }
+                }
+            });
+        </script>
+    @endpush
 
 </x-layouts.v-main-layout>
