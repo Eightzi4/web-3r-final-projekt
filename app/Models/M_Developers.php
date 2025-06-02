@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Database\Factories\DeveloperFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Developers extends Model
 {
-    use HasFactory;
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
+
     protected $table = 'developers';
     protected $fillable = [
         'id', 'name', 'founded_date', 'description', 'country_id', 'website_link'

@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\PriceFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Prices extends Model
 {
-    use HasFactory;
-
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'prices';
     protected $fillable = [

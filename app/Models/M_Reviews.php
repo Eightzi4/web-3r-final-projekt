@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\ReviewFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Reviews extends Model
 {
-    use HasFactory;
-    // Timestamps are enabled by default, which is good for reviews.
+    use HasFactory, SoftDeletes;
+
     protected $table = 'reviews';
     protected $fillable = [ // Add fillable properties
         'user_id', 'game_id', 'rating', 'comment', 'title' // Assuming you have these fields

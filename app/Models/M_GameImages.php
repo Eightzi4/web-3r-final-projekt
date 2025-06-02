@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\GameImagesFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_GameImages extends Model
 {
-    use HasFactory;
-
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'game_images';
     protected $fillable = [

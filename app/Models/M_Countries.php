@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\CountryFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class M_Countries extends Model
 {
-    use HasFactory;
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
+
     protected $table = 'countries';
     protected $fillable = ['id', 'name'];
 

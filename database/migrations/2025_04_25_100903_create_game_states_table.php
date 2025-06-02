@@ -12,7 +12,8 @@ return new class extends Migration
             // $table->integer('id')->autoIncrement()->startingValue(201); // Old
             $table->id(); // New
             $table->string('name')->unique(); // Game state names should be unique
-            // No timestamps typically needed for game states
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

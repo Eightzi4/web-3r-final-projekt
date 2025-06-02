@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // <<< THIS LINE
+use Laravel\Sanctum\HasApiTokens;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable // Extend Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // Added HasApiTokens and Notifiable
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes; // Added HasApiTokens and Notifiable
 
     // If your table is 'users2', uncomment this. Otherwise, Laravel expects 'users'.
     // protected $table = 'users2';

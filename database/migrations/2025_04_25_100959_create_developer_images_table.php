@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreign('developer_id')
                   ->references('id')->on('developers')
                   ->onDelete('cascade'); // If developer is deleted, their images are deleted
-            // No timestamps typically needed for simple image link table
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

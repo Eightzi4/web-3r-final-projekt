@@ -14,7 +14,8 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->text('description')->nullable();
             $table->string('color')->nullable(); // Changed color to string (e.g., hex code '#FF0000') and made nullable
-            // No timestamps typically needed for tags
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

@@ -12,7 +12,8 @@ return new class extends Migration
             // $table->integer('id')->autoIncrement()->startingValue(501); // Old
             $table->id(); // New
             $table->string('name')->unique();
-            // No timestamps typically needed
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password'); // The password column
             $table->rememberToken(); // For "remember me" functionality
             $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
 
             // Your custom 'is_admin' column can be added here directly
             // instead of a separate migration if this is the primary user table creation.

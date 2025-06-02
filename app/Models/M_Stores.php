@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\StoreFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Stores extends Model
 {
-    use HasFactory;
-    // Timestamps might be useful here too.
+    use HasFactory, SoftDeletes;
+
     protected $table = 'stores';
     protected $fillable = ['id', 'name', 'url']; // Assuming 'name' and 'url'
 

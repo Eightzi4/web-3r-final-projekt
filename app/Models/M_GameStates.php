@@ -5,12 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\GameStateFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_GameStates extends Model // This model represents a state like "Released", "Beta"
 {
-    use HasFactory;
-
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'game_states'; // This table should contain state definitions (e.g., id, name)
     protected $fillable = [

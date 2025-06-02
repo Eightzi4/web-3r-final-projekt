@@ -22,7 +22,8 @@ return new class extends Migration
 
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps(); // Reviews definitely benefit from timestamps
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth; // Added for wishlist check
 use Database\Factories\GameFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Games extends Model
 {
-    use HasFactory;
-
-    public $timestamps = false; // Consider if created_at/updated_at for game metadata is useful
+    use HasFactory, SoftDeletes;
 
     protected $table = 'games';
     protected $fillable = [

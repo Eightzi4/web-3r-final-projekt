@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreign('game_id')
                   ->references('id')->on('games')
                   ->onDelete('cascade'); // If game is deleted, its images are deleted
-            // No timestamps typically needed
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

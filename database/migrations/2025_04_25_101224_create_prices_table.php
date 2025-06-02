@@ -24,9 +24,8 @@ return new class extends Migration
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
             $table->foreign('platform_id')->references('id')->on('platforms')->onDelete('cascade');
             $table->foreign('store_id')->references('id')->on('stores')->onDelete('cascade');
-            // Timestamps might be useful for price records, but your 'date' column serves a similar purpose.
-            // If 'date' is the creation date, $table->timestamps() might be redundant.
-            // If you want separate created_at/updated_at, add $table->timestamps();
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

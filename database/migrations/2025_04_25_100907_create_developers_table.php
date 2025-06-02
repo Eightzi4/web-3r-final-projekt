@@ -28,7 +28,8 @@ return new class extends Migration
             // If you want to delete the developer if their country is deleted, use 'cascade'.
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('set null');
 
-            $table->timestamps(); // Good practice to add timestamps
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

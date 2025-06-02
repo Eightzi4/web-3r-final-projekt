@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\TagFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class M_Tags extends Model
 {
-    use HasFactory;
-    public $timestamps = false;
+    use HasFactory, SoftDeletes;
+
     protected $table = 'tags';
     protected $fillable = ['id', 'name', 'description', 'color'];
 

@@ -23,7 +23,8 @@ return new class extends Migration
             $table->unsignedBigInteger('developer_id');
             $table->foreign('developer_id')->references('id')->on('developers')->onDelete('cascade'); // Added onDelete cascade
 
-            $table->timestamps(); // It's good practice to add timestamps
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

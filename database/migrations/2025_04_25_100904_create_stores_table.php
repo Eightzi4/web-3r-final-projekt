@@ -13,7 +13,8 @@ return new class extends Migration
             $table->id(); // New
             $table->string('name')->unique();
             $table->string('website_link')->nullable(); // Made nullable as not all might have one
-            $table->timestamps(); // Stores might have relevant creation/update dates
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 

@@ -13,7 +13,8 @@ return new class extends Migration
             // $table->primary('id'); // Old - $table->id() handles this
             $table->id(); // New
             $table->string('name')->unique(); // Country names should likely be unique
-            // No timestamps needed for a simple lookup table like countries typically
+            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->softDeletes(); // For soft deletes
         });
     }
 
