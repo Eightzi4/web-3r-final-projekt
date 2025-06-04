@@ -130,12 +130,12 @@
   ```
 
 #### Routy (URL)
-- **Notace:** snake_case
+- **Notace:** kebab-case
 - **Příklady:**
   ```php
-  Route::get('/user_profile', ...);
-  Route::post('/save_product', ...);
-  Route::get('/product_categories/{id}', ...);
+  Route::get('/user-profile', ...);
+  Route::post('/save-product', ...);
+  Route::get('/product-categories/{id}', ...);
   ```
 
 #### Migrace
