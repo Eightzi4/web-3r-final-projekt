@@ -1,227 +1,229 @@
 /* resources/css/app.css */
+
+/* Tailwind CSS base, components, and utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
-================================================================================
-Quill Editor Custom Styling - Enhanced Dark Theme Visibility
-================================================================================
-*/
-
-/* Overall Toolbar Container */
+/* Quill Editor: Overall Toolbar Container */
 .ql-toolbar.ql-snow {
     @apply bg-slate-700 border border-slate-600 rounded-t-lg p-1.5 shadow-sm;
-    /* Toolbar bg is a bit lighter than editor area based on screenshot */
 }
 
-/* Button Rows within the Toolbar */
+/* Quill Editor: Button Rows within the Toolbar */
 .ql-snow .ql-formats {
     @apply mr-1.5;
-    /* Spacing between button groups */
 }
 
-/* Individual Buttons & Icons - Default State */
+/* Quill Editor: Individual Buttons & Icons - Default State */
 .ql-snow .ql-picker-label,
-/* For dropdown labels like "Normal" for heading */
 .ql-snow button {
     @apply transition-colors duration-150;
     color: theme('colors.slate.400');
-    /* Base color for icons/text in buttons for dark theme */
 }
 
-/* Light mode specific for button text/icons if needed, else it inherits from body */
+/* Quill Editor: Light mode specific for button text/icons */
 html:not(.dark) .ql-snow .ql-picker-label,
 html:not(.dark) .ql-snow button {
     color: theme('colors.slate.700');
 }
 
-
+/* Quill Editor: SVG stroke color inheritance */
 .ql-snow .ql-stroke {
     stroke: currentColor;
-    /* Inherit color from parent button/label */
 }
 
+/* Quill Editor: SVG fill color inheritance */
 .ql-snow .ql-fill {
     fill: currentColor;
-    /* Inherit color from parent button/label */
 }
 
-/* Make sure SVG paths also inherit if currentColor isn't enough */
+/* Quill Editor: Ensure SVG paths also inherit color */
 .ql-snow .ql-picker-label svg path,
 .ql-snow button svg path {
     stroke: currentColor;
-    /* Or fill: currentColor; depending on SVG structure */
 }
 
-
-/* Hover State for Buttons & Picker Labels */
+/* Quill Editor: Hover State for Buttons & Picker Labels */
 .ql-snow .ql-picker-label:hover,
 .ql-snow button:hover {
     color: theme('colors.slate.100');
-    /* Lighter on hover for dark theme */
-    /* @apply bg-slate-600; /* Optional subtle background hover for dark theme */
 }
 
+/* Quill Editor: Light mode hover state for buttons & picker labels */
 html:not(.dark) .ql-snow .ql-picker-label:hover,
 html:not(.dark) .ql-snow button:hover {
     color: theme('colors.slate.900');
-    /* @apply bg-slate-200; */
 }
 
-/* Active State for Buttons (when a format is applied or dropdown is open) */
+/* Quill Editor: Active State for SVG strokes */
 .ql-snow .ql-active .ql-stroke,
 .ql-snow .ql-picker-label.ql-active .ql-stroke,
 .ql-snow .ql-picker-item.ql-selected .ql-stroke {
     stroke: theme('colors.indigo.400');
 }
 
+/* Quill Editor: Active State for SVG fills */
 .ql-snow .ql-active .ql-fill,
 .ql-snow .ql-picker-label.ql-active .ql-fill,
 .ql-snow .ql-picker-item.ql-selected .ql-fill {
     fill: theme('colors.indigo.400');
 }
 
+/* Quill Editor: Active State for Buttons and Picker Labels text color */
 .ql-snow button.ql-active,
 .ql-snow .ql-picker-label.ql-active {
     color: theme('colors.indigo.400');
-    /* Text/icon color for active state */
-    /* @apply bg-slate-600; /* Slightly different background for active if needed */
 }
 
+/* Quill Editor: Light mode active state for SVG strokes */
 html:not(.dark) .ql-snow .ql-active .ql-stroke,
 html:not(.dark) .ql-snow .ql-picker-label.ql-active .ql-stroke,
 html:not(.dark) .ql-snow .ql-picker-item.ql-selected .ql-stroke {
     stroke: theme('colors.indigo.600');
 }
 
+/* Quill Editor: Light mode active state for SVG fills */
 html:not(.dark) .ql-snow .ql-active .ql-fill,
 html:not(.dark) .ql-snow .ql-picker-label.ql-active .ql-fill,
 html:not(.dark) .ql-snow .ql-picker-item.ql-selected .ql-fill {
     fill: theme('colors.indigo.600');
 }
 
+/* Quill Editor: Light mode active state for buttons and picker labels text color */
 html:not(.dark) .ql-snow button.ql-active,
 html:not(.dark) .ql-snow .ql-picker-label.ql-active {
     color: theme('colors.indigo.600');
 }
 
-
-/* Dropdown Options Panel */
+/* Quill Editor: Dropdown Options Panel */
 .ql-snow .ql-picker-options {
     @apply bg-slate-700 border-slate-600 shadow-lg rounded-md;
-    /* Dark background for dropdown */
 }
 
+/* Quill Editor: Dropdown Option Items text color */
 .ql-snow .ql-picker-item {
     @apply text-slate-300;
-    /* Text color for dropdown items */
 }
 
-/* Ensure SVGs inside picker options also get styled */
+/* Quill Editor: SVG strokes inside picker options */
 .ql-snow .ql-picker-item svg .ql-stroke {
     stroke: theme('colors.slate.300');
 }
 
+/* Quill Editor: SVG strokes inside hovered picker options */
 .ql-snow .ql-picker-item:hover svg .ql-stroke {
     stroke: theme('colors.slate.100');
 }
 
+/* Quill Editor: SVG strokes inside selected picker options */
 .ql-snow .ql-picker-item.ql-selected svg .ql-stroke {
     stroke: theme('colors.indigo.400');
 }
 
+/* Quill Editor: Hover state for dropdown option items */
 .ql-snow .ql-picker-item:hover {
     @apply text-slate-100 bg-slate-600;
 }
 
+/* Quill Editor: Selected state for dropdown option items */
 .ql-snow .ql-picker-item.ql-selected {
     @apply text-indigo-400;
 }
 
-
-/* Editor Area Container */
+/* Quill Editor: Editor Area Container */
 .ql-container.ql-snow {
     @apply border border-t-0 border-slate-600 rounded-b-lg;
 }
 
-/* The actual editable area */
+/* Quill Editor: The actual editable area */
 .ql-editor {
     @apply min-h-[180px] p-4 text-slate-200 bg-slate-800 leading-relaxed;
-    /* Darker background for the editor area itself (slate-800) */
     font-family: theme('fontFamily.sans');
     font-size: theme('fontSize.sm');
     border-radius: 0 0 theme('borderRadius.lg') theme('borderRadius.lg');
 }
 
-/* Placeholder text styling */
+/* Quill Editor: Placeholder text styling */
 .ql-editor.ql-blank::before {
     content: attr(data-placeholder);
     @apply text-slate-500 not-italic absolute left-4 right-4 top-4 pointer-events-none;
     font-style: normal;
 }
 
-/* Styling for content DISPLAYED from Quill (using {!! !!}) */
+/* Styling for content DISPLAYED from Quill */
 .quill-content-display {
     @apply prose prose-sm sm:prose-base dark:prose-invert max-w-none leading-relaxed;
     color: theme('colors.gray.700');
 }
 
+/* Quill Display: Dark mode text color */
 .dark .quill-content-display {
     color: theme('colors.slate.300');
 }
 
-/* ... (rest of .quill-content-display styles for h1, ul, ol, blockquote etc. from previous response) ... */
+/* Quill Display: H1 heading style */
 .quill-content-display h1 {
     @apply text-2xl font-bold mb-2 mt-4 text-slate-100;
 }
 
+/* Quill Display: H2 heading style */
 .quill-content-display h2 {
     @apply text-xl font-semibold mt-3 mb-1.5 text-slate-100;
 }
 
+/* Quill Display: H3 heading style */
 .quill-content-display h3 {
     @apply text-lg font-semibold mt-3 mb-1 text-slate-200;
 }
 
+/* Quill Display: Unordered and ordered list styling */
 .quill-content-display ul,
 .quill-content-display ol {
     @apply pl-5 my-2;
 }
 
+/* Quill Display: List item marker color */
 .quill-content-display li::marker {
     @apply text-slate-400;
 }
 
+/* Quill Display: Blockquote styling */
 .quill-content-display blockquote {
     @apply border-l-4 border-indigo-500 dark:border-indigo-400 pl-4 py-1 my-3 italic text-slate-400 bg-slate-700/50 rounded-r-md;
 }
 
-/* Adjusted bg for blockquote */
+/* Quill Display: Anchor link styling */
 .quill-content-display a {
     @apply text-indigo-400 hover:text-indigo-300 hover:underline font-medium;
 }
 
+/* Quill Display: Preformatted text (code block) styling */
 .quill-content-display pre.ql-syntax {
     @apply bg-slate-800 text-slate-300 p-3 rounded-md overflow-x-auto text-sm my-3 whitespace-pre-wrap font-mono;
 }
 
+/* Quill Display: Dark mode preformatted text color */
 .dark .quill-content-display pre.ql-syntax {
     color: theme('colors.slate.300');
 }
 
+/* Quill Display: Inline code styling */
 .quill-content-display code:not(pre code) {
     @apply bg-slate-700 px-1.5 py-0.5 rounded text-sm font-mono text-indigo-300;
 }
 
+/* Quill Display: Center alignment */
 .quill-content-display .ql-align-center {
     @apply text-center;
 }
 
+/* Quill Display: Right alignment */
 .quill-content-display .ql-align-right {
     @apply text-right;
 }
 
+/* Quill Display: Justify alignment */
 .quill-content-display .ql-align-justify {
     @apply text-justify;
 }

@@ -1,5 +1,7 @@
-<x-layouts.v-main-layout :title="$developer->name" :breadcrumbs="$breadcrumbs">
+{{-- Main layout component for displaying a developer's page --}}
+<x-layouts.v-main :title="$developer->name" :breadcrumbs="$breadcrumbs">
     <div class="py-6">
+        {{-- Developer information header --}}
         <header class="mb-8 text-center">
             <h1 class="text-4xl font-bold text-gray-800 dark:text-white">{{ $developer->name }}</h1>
             @if($developer->country)
@@ -13,6 +15,7 @@
             @endif
         </header>
 
+        {{-- Developer description section --}}
         @if($developer->description)
         <section class="mb-10 max-w-3xl mx-auto">
             <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-3">About {{ $developer->name }}</h2>
@@ -22,7 +25,7 @@
         </section>
         @endif
 
-        {{-- Developer Images Gallery --}}
+        {{-- Developer images gallery section --}}
         @if($developer->images->isNotEmpty())
         <section class="mb-10">
             <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 text-center">Gallery</h2>
@@ -36,7 +39,7 @@
         </section>
         @endif
 
-
+        {{-- Games by developer section --}}
         <section>
             <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6 text-center">Games by {{ $developer->name }} ({{ $games->total() }})</h2>
             @if($games->isNotEmpty())
@@ -45,6 +48,7 @@
                         @include('partials._game_card', ['game' => $game])
                     @endforeach
                 </div>
+                {{-- Pagination for games --}}
                 <div class="mt-10">
                     {{ $games->links() }}
                 </div>
@@ -53,4 +57,4 @@
             @endif
         </section>
     </div>
-</x-layouts.v-main-layout>
+</x-layouts.v-main>

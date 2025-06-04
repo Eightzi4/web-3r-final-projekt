@@ -6,17 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'platforms' table with id, name, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('platforms', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(501); // Old
-            $table->id(); // New
+            $table->id();
             $table->string('name')->unique();
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the 'platforms' table if it exists.
     public function down(): void
     {
         Schema::dropIfExists('platforms');

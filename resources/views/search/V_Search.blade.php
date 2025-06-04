@@ -1,16 +1,18 @@
-<x-layouts.v-main-layout title="Search Games" :breadcrumbs="$breadcrumbs">
-    <header class="mb-8 text-center"> {{-- Centered header --}}
+{{-- Main layout component for the game search page --}}
+<x-layouts.v-main title="Search Games" :breadcrumbs="$breadcrumbs">
+    {{-- Page header section --}}
+    <header class="mb-8 text-center">
         <h1 class="text-4xl font-extrabold text-gray-800 dark:text-white tracking-tight">Find Your Next Adventure</h1>
         <p class="mt-3 text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
             Use the filters below to narrow down your search and discover amazing games.
         </p>
     </header>
 
-    {{-- Enhanced Filter Section --}}
+    {{-- Search filters form --}}
     <form method="GET" action="{{ route('search') }}"
         class="mb-10 bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-2xl">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6 items-end">
-            {{-- Search Term - Spanning more columns on larger screens for prominence --}}
+            {{-- Search term input field --}}
             <div class="sm:col-span-2 lg:col-span-2">
                 <label for="query" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Search by
                     Name or Keyword</label>
@@ -29,7 +31,7 @@
                 </div>
             </div>
 
-            {{-- Sort By --}}
+            {{-- Sort by dropdown --}}
             <div>
                 <label for="sort" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Sort
                     By</label>
@@ -42,11 +44,10 @@
                         Low</option>
                     <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
                     <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z-A</option>
-                    {{-- <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest Releases</option> --}}
                 </select>
             </div>
 
-            {{-- Platform --}}
+            {{-- Platform filter dropdown --}}
             <div>
                 <label for="platform"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Platform</label>
@@ -62,8 +63,8 @@
                 </select>
             </div>
 
-            {{-- Tags - Consider a more advanced tag selector if you have many tags (e.g., a multi-select dropdown with search) --}}
-            <div class="sm:col-span-2 lg:col-span-4"> {{-- Tags spanning full width on small, then taking more space --}}
+            {{-- Tags filter multi-select --}}
+            <div class="sm:col-span-2 lg:col-span-4">
                 <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Filter
                     by Tags</label>
                 <select name="tags[]" id="tags" multiple
@@ -78,6 +79,7 @@
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Hold Ctrl/Cmd to select multiple tags.</p>
             </div>
         </div>
+        {{-- Form action buttons: Reset and Apply --}}
         <div
             class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
             <a href="{{ route('search') }}"
@@ -91,6 +93,7 @@
         </div>
     </form>
 
+    {{-- Display search results or "no results" message --}}
     @if ($games->isEmpty())
         <div class="text-center py-12">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -102,6 +105,7 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Try adjusting your search or filters.</p>
         </div>
     @else
+        {{-- Results count and game cards grid --}}
         <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Showing {{ $games->firstItem() }} to {{ $games->lastItem() }} of {{ $games->total() }} results.
         </div>
@@ -111,8 +115,9 @@
             @endforeach
         </div>
 
+        {{-- Pagination links for search results --}}
         <div class="mt-10">
             {{ $games->appends(request()->query())->links() }}
         </div>
     @endif
-</x-layouts.v-main-layout>
+</x-layouts.v-main>

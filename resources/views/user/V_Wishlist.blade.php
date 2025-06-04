@@ -1,9 +1,13 @@
-<x-layouts.v-main-layout title="My Wishlist" :breadcrumbs="$breadcrumbs">
+{{-- Main layout component for the user's wishlist page --}}
+<x-layouts.v-main title="My Wishlist" :breadcrumbs="$breadcrumbs">
+    {{-- Page header for Wishlist --}}
     <header class="mb-8">
         <h1 class="text-3xl font-bold text-gray-800 dark:text-white">My Wishlist</h1>
     </header>
 
+    {{-- Check if the wishlist is empty --}}
     @if($wishlistedGames->isEmpty())
+        {{-- Message displayed if the wishlist is empty --}}
         <div class="text-center py-12">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
@@ -17,14 +21,16 @@
             </div>
         </div>
     @else
+        {{-- Grid for displaying wishlisted game cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
             @foreach ($wishlistedGames as $game)
                 @include('partials._game_card', ['game' => $game])
             @endforeach
         </div>
 
+        {{-- Pagination links for wishlisted games --}}
         <div class="mt-10">
             {{ $wishlistedGames->links() }}
         </div>
     @endif
-</x-layouts.v-main-layout>
+</x-layouts.v-main>

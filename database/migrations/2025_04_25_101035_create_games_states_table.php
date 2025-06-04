@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'games_states' pivot table with foreign keys to games and game_states.
     public function up(): void
     {
-        Schema::create('games_states', function (Blueprint $table) { // Assuming this is the correct pivot table name
-            // $table->integer('game_id'); // Old
-            // $table->integer('game_state_id'); // Old
-            $table->unsignedBigInteger('game_id'); // New
-            $table->unsignedBigInteger('game_state_id'); // New
+        Schema::create('games_states', function (Blueprint $table) {
+            $table->unsignedBigInteger('game_id');
+            $table->unsignedBigInteger('game_state_id');
 
             $table->primary(['game_id', 'game_state_id']);
 
@@ -20,11 +20,13 @@ return new class extends Migration
                   ->references('id')->on('games')
                   ->onDelete('cascade');
             $table->foreign('game_state_id')
-                  ->references('id')->on('game_states') // Corrected table name
+                  ->references('id')->on('game_states')
                   ->onDelete('cascade');
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the foreign key constraints and then the 'games_states' pivot table.
     public function down(): void
     {
         Schema::table('games_states', function (Blueprint $table) {

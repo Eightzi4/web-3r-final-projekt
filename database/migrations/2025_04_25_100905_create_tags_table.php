@@ -6,19 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'tags' table with id, name, description, color, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('tags', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(401); // Old
-            $table->id(); // New
+            $table->id();
             $table->string('name')->unique();
             $table->text('description')->nullable();
-            $table->string('color')->nullable(); // Changed color to string (e.g., hex code '#FF0000') and made nullable
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+            $table->string('color')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the 'tags' table if it exists.
     public function down(): void
     {
         Schema::dropIfExists('tags');

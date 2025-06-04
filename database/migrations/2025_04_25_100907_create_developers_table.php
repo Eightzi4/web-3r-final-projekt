@@ -6,36 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the database migrations.
+    // Creates the 'developers' table with details, foreign key to countries, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('developers', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(501); // Old
-            $table->id(); // New: This creates an UNSIGNED BIGINT 'id'
+            $table->id();
             $table->string('name');
             $table->date('founded_date')->nullable();
             $table->text('description')->nullable();
 
-            // For country_id, assuming countries.id is also UNSIGNED BIGINT (created with $table->id())
             $table->unsignedBigInteger('country_id')->nullable();
             $table->string('website_link')->nullable();
 
-            // Add onDelete('set null') or onDelete('cascade') if appropriate
-            // Using 'set null' because country_id is nullable. If a country is deleted,
-            // the developer's country_id will become NULL.
-            // If you want to delete the developer if their country is deleted, use 'cascade'.
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('set null');
 
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the database migrations.
+    // Drops the foreign key constraint and then the 'developers' table.
     public function down(): void
     {
         Schema::table('developers', function (Blueprint $table) {

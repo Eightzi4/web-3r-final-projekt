@@ -10,8 +10,11 @@ use Illuminate\Support\Str;
 
 class ReviewFactory extends Factory
 {
+    // The name of the factory's corresponding model.
     protected $model = M_Reviews::class;
 
+    // Define the model's default state.
+    // Returns an array of default attribute values for a review.
     public function definition(): array
     {
         return [
@@ -19,7 +22,7 @@ class ReviewFactory extends Factory
             'comment' => fake()->paragraphs(rand(1, 4), true),
             'rating' => fake()->numberBetween(1, 5),
             'game_id' => M_Games::inRandomOrder()->first()->id ?? GameFactory::new(),
-            'user_id' => User::where('is_admin', false)->inRandomOrder()->first()->id ?? UserFactory::new(), // Non-admin user
+            'user_id' => User::where('is_admin', false)->inRandomOrder()->first()->id ?? UserFactory::new(),
         ];
     }
 }

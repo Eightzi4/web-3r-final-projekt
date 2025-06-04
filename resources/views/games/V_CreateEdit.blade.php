@@ -1,11 +1,12 @@
-{{-- V_CreateEdit.blade.php --}}
-<x-layouts.v-main-layout :title="$game->exists ? 'Edit Game: ' . $game->name : 'Add New Game'" :breadcrumbs="$breadcrumbs">
+{{-- Main layout component for creating or editing a game --}}
+<x-layouts.v-main :title="$game->exists ? 'Edit Game: ' . $game->name : 'Add New Game'" :breadcrumbs="$breadcrumbs">
 
     <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-2xl rounded-xl p-6 sm:p-8 md:p-10">
+        {{-- Form header: "Edit Game" or "Add New Game" --}}
         <h1 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white text-center">
             {{ $game->exists ? 'Edit Game' : 'Add New Game' }}</h1>
 
-        {{-- THE FORM TAG WITH CORRECTED x-data and x-init --}}
+        {{-- Main form for game details, tags, images, and pricing --}}
         <form method="POST"
             action="{{ $game->exists ? route('admin.games.update', $game) : route('admin.games.store') }}"
             enctype="multipart/form-data" class="space-y-10" x-data="{
@@ -15,8 +16,8 @@
                                 return [
                                     'platform_id' => (string) $price->platform_id,
                                     'store_id' => (string) $price->store_id,
-                                    'price' => (string) $price->price, // Ensure price is string for model
-                                    'discount' => (string) ($price->discount ?? '0'), // Ensure discount is string and defaults to '0'
+                                    'price' => (string) $price->price,
+                                    'discount' => (string) ($price->discount ?? '0'),
                                 ];
                             })->values()->all(),
                     )
@@ -69,8 +70,7 @@
                 @method('PUT')
             @endif
 
-            {{-- Basic Info Section --}}
-            {{-- ... (content of Basic Info Section as previously styled) ... --}}
+            {{-- Section for Basic Game Information --}}
             <section class="space-y-6">
                 <h2
                     class="text-xl font-semibold text-gray-700 dark:text-gray-200 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -152,8 +152,7 @@
                 </div>
             </section>
 
-            {{-- Tags Section --}}
-            {{-- ... (content of Tags Section as previously styled, ensure x-model bindings are correct) ... --}}
+            {{-- Section for Game Tags --}}
             <section class="space-y-2">
                 <h2
                     class="text-xl font-semibold text-gray-700 dark:text-gray-200 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -201,9 +200,7 @@
                 </div>
             </section>
 
-
-            {{-- Image Upload Section --}}
-            {{-- ... (content of Image Upload Section as previously styled) ... --}}
+            {{-- Section for Image Uploads --}}
             <section class="space-y-2">
                 <h2
                     class="text-xl font-semibold text-gray-700 dark:text-gray-200 pb-2 border-b border-gray-200 dark:border-gray-700">
@@ -270,9 +267,7 @@
                 </div>
             </section>
 
-
-            {{-- Prices Section --}}
-            {{-- ... (content of Prices Section as previously styled, ensure x-model bindings are correct) ... --}}
+            {{-- Section for Pricing Information --}}
             <section class="space-y-6 border-t border-gray-300 dark:border-gray-700 pt-8">
                 <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200 pb-2">Pricing Information *</h2>
                 @error('prices')
@@ -303,7 +298,6 @@
                                         required>
                                         <option value="">Select Platform</option>
                                         <template x-for="platform in allPlatforms" :key="platform.id">
-                                            {{-- CORRECTED: Added :selected binding --}}
                                             <option :value="platform.id" x-text="platform.name"
                                                 :selected="price.platform_id == platform.id"></option>
                                         </template>
@@ -320,7 +314,6 @@
                                         required>
                                         <option value="">Select Store</option>
                                         <template x-for="store in allStores" :key="store.id">
-                                            {{-- CORRECTED: Added :selected binding --}}
                                             <option :value="store.id" x-text="store.name"
                                                 :selected="price.store_id == store.id"></option>
                                         </template>
@@ -358,7 +351,7 @@
                 </button>
             </section>
 
-            {{-- Submit Button --}}
+            {{-- Submit button for the form --}}
             <div class="pt-8 border-t border-gray-300 dark:border-gray-700 flex justify-end mt-6">
                 <button type="submit"
                     class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150 text-base">
@@ -367,4 +360,4 @@
             </div>
         </form>
     </div>
-</x-layouts.v-main-layout>
+</x-layouts.v-main>

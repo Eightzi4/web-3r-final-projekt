@@ -6,36 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the database migrations.
+    // Creates the 'owned_games' pivot table with foreign keys to users and games.
     public function up(): void
     {
         Schema::create('owned_games', function (Blueprint $table) {
-            // $table->integer('user_id'); // Old
-            // $table->integer('game_id'); // Old
-
-            $table->unsignedBigInteger('user_id'); // Correct: Matches users.id (if it's bigIncrements)
-            $table->unsignedBigInteger('game_id'); // Correct: Matches games.id (if it's bigIncrements)
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('game_id');
 
             $table->primary(['user_id', 'game_id']);
 
-            // Define foreign keys
-            // onDelete('cascade') means if a user or game is deleted,
-            // the corresponding entries in owned_games will also be deleted.
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the database migrations.
+    // Drops the foreign key constraints and then the 'owned_games' pivot table.
     public function down(): void
     {
         Schema::table('owned_games', function (Blueprint $table) {
-            // It's good practice to drop foreign keys before dropping the table,
-            // or if you want to modify them.
             $table->dropForeign(['user_id']);
             $table->dropForeign(['game_id']);
         });

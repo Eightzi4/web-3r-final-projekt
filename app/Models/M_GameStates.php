@@ -7,23 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Database\Factories\GameStateFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class M_GameStates extends Model // This model represents a state like "Released", "Beta"
+class M_GameStates extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'game_states'; // This table should contain state definitions (e.g., id, name)
+    // The table associated with the model.
+    protected $table = 'game_states';
+    // The attributes that are mass assignable.
     protected $fillable = [
-        'id', // Assuming 'id' is fillable if you manually set it
-        'name' // The name of the game state e.g. "Released", "Beta"
-        // Add other attributes of a game state if any
+        'id',
+        'name'
     ];
 
+    // Define the many-to-many relationship with games.
+    // A game state can be applied to many games.
     public function games()
     {
-        // return $this->belongsToMany(M_Games::class, 'games_states_pivot', 'game_state_id', 'game_id'); // Old
-        return $this->belongsToMany(M_Games::class, 'games_states', 'game_state_id', 'game_id'); // New - matches migration
+        return $this->belongsToMany(M_Games::class, 'games_states', 'game_state_id', 'game_id');
     }
 
+    // Create a new factory instance for the model.
+    // Used for seeding and testing.
     protected static function newFactory()
     {
         return GameStateFactory::new();

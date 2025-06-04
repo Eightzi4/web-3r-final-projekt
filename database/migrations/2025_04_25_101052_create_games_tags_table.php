@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'games_tags' pivot table with foreign keys to tags and games.
     public function up(): void
     {
         Schema::create('games_tags', function (Blueprint $table) {
@@ -19,6 +21,8 @@ return new class extends Migration
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the foreign key constraints and then the 'games_tags' pivot table.
     public function down(): void
     {
         Schema::table('games_tags', function (Blueprint $table) {

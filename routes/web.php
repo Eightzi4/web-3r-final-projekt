@@ -4,12 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\C_Discover;
 use App\Http\Controllers\C_Search;
 use App\Http\Controllers\C_Game;
-use App\Http\Controllers\C_ReviewController;
-use App\Http\Controllers\C_WishlistController;
-use App\Http\Controllers\C_TagPageController;
-use App\Http\Controllers\C_DeveloperPageController;
-use App\Http\Controllers\Admin\C_Admin_SiteInfoController; // You'll create this
-use App\Http\Controllers\Admin\C_Admin_UserController;   // You'll create this
+use App\Http\Controllers\C_Review;
+use App\Http\Controllers\C_Wishlist;
+use App\Http\Controllers\C_Tag;
+use App\Http\Controllers\C_Developer;
+use App\Http\Controllers\Admin\C_SiteInfo;
+use App\Http\Controllers\Admin\C_User;
 use App\Models\M_Developers;
 use App\Models\M_Games;
 use App\Models\M_Platforms;
@@ -18,52 +18,44 @@ use App\Models\M_Stores;
 use App\Models\M_Tags;
 use App\Models\User;
 
-// Default Laravel Auth routes (if using Breeze)
-// require __DIR__.'/auth.php'; // This line is usually added by Breeze
-
-// Public Routes
+// Publicly accessible routes for all users.
 Route::get('/', function () {
     $breadcrumbs = [['name' => 'Home']];
-    return view('V_Home', compact('breadcrumbs')); // New home view
+    return view('V_Home', compact('breadcrumbs'));
 })->name('home');
 Route::get('/discover', [C_Discover::class, 'index'])->name('discover');
 Route::get('/search', [C_Search::class, 'index'])->name('search');
-Route::get('/games/{game}', [C_Game::class, 'show'])->name('games.show')->where('game', '[0-9]+'); // Ensure 'game' is numeric if using ID
-Route::get('/site-info', [C_Admin_SiteInfoController::class, 'index'])->name('siteinfo');
-Route::resource('/users', C_Admin_UserController::class)->except(['show', 'create', 'store']); // Common for user management
-Route::get('/developers/{developer}', [C_DeveloperPageController::class, 'show'])->name('developers.show');
-Route::get('/tags/{tag}', [C_TagPageController::class, 'show'])->name('tags.show');
+Route::get('/games/{game}', [C_Game::class, 'show'])->name('games.show')->where('game', '[0-9]+');
+Route::get('/site-info', [C_SiteInfo::class, 'index'])->name('siteinfo');
+Route::resource('/users', C_User::class)->except(['show', 'create', 'store']);
+Route::get('/developers/{developer}', [C_Developer::class, 'show'])->name('developers.show');
+Route::get('/tags/{tag}', [C_Tag::class, 'show'])->name('tags.show');
 Route::get('/banned', function () {
-    return view('auth.banned'); // Create this view
+    return view('auth.banned');
 })->name('banned');
 
-// Authenticated User Routes
+// Routes requiring user authentication.
 Route::middleware(['auth'])->group(function () {
-    // Reviews
-    Route::post('/games/{game}/reviews', [C_ReviewController::class, 'store'])->name('reviews.store');
-    Route::put('/reviews/{review}', [C_ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('/reviews/{review}', [C_ReviewController::class, 'destroy'])->name('reviews.destroy');
+    // Routes for managing game reviews.
+    Route::post('/games/{game}/reviews', [C_Review::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{review}', [C_Review::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [C_Review::class, 'destroy'])->name('reviews.destroy');
 
-    // Wishlist
-    Route::get('/my-wishlist', [C_WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/{game}/add', [C_WishlistController::class, 'add'])->name('wishlist.add');
-    Route::post('/wishlist/{game}/remove', [C_WishlistController::class, 'remove'])->name('wishlist.remove');
-
-    // Example: User profile page
-    // Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Routes for managing user wishlists.
+    Route::get('/my-wishlist', [C_Wishlist::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{game}/add', [C_Wishlist::class, 'add'])->name('wishlist.add');
+    Route::post('/wishlist/{game}/remove', [C_Wishlist::class, 'remove'])->name('wishlist.remove');
 });
 
-// Admin Routes
+// Routes restricted to administrators.
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin dashboard route with site statistics.
     Route::get('/dashboard', function () {
         $breadcrumbs = [
             ['name' => 'Home', 'url' => route('home')],
             ['name' => 'Admin Dashboard']
         ];
 
-        // Fetching stats
         $stats = [
             'totalGames' => M_Games::count(),
             'visibleGames' => M_Games::where('visible', true)->count(),
@@ -76,13 +68,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             'totalTags' => M_Tags::count(),
             'totalPlatforms' => M_Platforms::count(),
             'totalStores' => M_Stores::count(),
-            // You can add more specific stats, e.g., average game price, games per developer, etc.
         ];
 
-        return view('admin.V_Dashboard', compact('breadcrumbs', 'stats')); // Pass 'stats'
+        return view('admin.V_Dashboard', compact('breadcrumbs', 'stats'));
     })->name('dashboard');
 
-    Route::get('/games', [C_Game::class, 'adminIndex'])->name('games.index'); // Admin list of games
+    // Admin routes for managing games.
+    Route::get('/games', [C_Game::class, 'adminIndex'])->name('games.index');
     Route::get('/games/create', [C_Game::class, 'create'])->name('games.create');
     Route::post('/games', [C_Game::class, 'store'])->name('games.store');
     Route::get('/games/{game}/edit', [C_Game::class, 'edit'])->name('games.edit')->where('game', '[0-9]+');
@@ -90,24 +82,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/games/{game}', [C_Game::class, 'destroy'])->name('games.destroy')->where('game', '[0-9]+');
     Route::delete('/game-images/{image}', [C_Game::class, 'destroyGameImage'])->name('game-images.destroy')->where('image', '[0-9]+');
 
-    // Add routes for managing Tags, Developers, Platforms, Stores, Users etc. here
-    // Example for Tags:
-    // Route::resource('tags', C_Admin_TagController::class);
-    Route::get('/site-info', [C_Admin_SiteInfoController::class, 'index'])->name('siteinfo'); // Full name: admin.siteinfo
-    // Your user management routes:
-    Route::resource('/users', C_Admin_UserController::class)->except(['show', 'create', 'store']);
+    // Admin route for site information.
+    Route::get('/site-info', [C_SiteInfo::class, 'index'])->name('siteinfo');
+    // Admin routes for user management.
+    Route::resource('/users', C_User::class)->except(['show', 'create', 'store']);
 });
 
-// If not using Laravel Breeze for auth, you might need to define these manually:
-// Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-// Route::post('login', [AuthenticatedSessionController::class, 'store']);
-// Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-// Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-// Route::post('register', [RegisteredUserController::class, 'store']);
-
-// Fallback route for 404s (optional, Laravel handles this by default)
-// Route::fallback(function() {
-//     return view('errors.404'); // Create a custom 404 page
-// });
-
+// Include Laravel's default authentication routes.
 require __DIR__ . '/auth.php';

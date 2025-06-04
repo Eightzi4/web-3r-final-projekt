@@ -17,8 +17,6 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    // public const HOME = '/dashboard'; // Old Breeze default
-    public const HOME = '/'; // Change this to your new general home route
 
-    // ... rest of the file
+    public const HOME = '/';
 }

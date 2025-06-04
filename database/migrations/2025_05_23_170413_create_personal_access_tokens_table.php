@@ -6,9 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the database migrations.
+    // Creates the 'personal_access_tokens' table for API token storage.
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
@@ -23,9 +22,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the database migrations.
+    // Drops the 'personal_access_tokens' table if it exists.
     public function down(): void
     {
         Schema::dropIfExists('personal_access_tokens');

@@ -13,20 +13,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // For slug generation if needed
+use Illuminate\Support\Str;
 
 class C_Game extends Controller
 {
-    // Apply admin middleware to CUD operations
+    // Constructor to apply middleware.
+    // Ensures admin access for CUD operations, 'show' is public.
     public function __construct()
     {
-        $this->middleware('admin')->except(['show']); // 'show' is public
+        $this->middleware('admin')->except(['show']);
     }
 
+    // Display a specific game's details page.
+    // Handles visibility and loads related data like reviews and similar games.
     public function show(M_Games $game)
     {
         if (!$game->visible && !(auth()->check() && auth()->user()->is_admin)) {
-            abort(404); // Hide non-visible games from non-admins
+            abort(404);
         }
 
         $game->load([
@@ -35,10 +38,9 @@ class C_Game extends Controller
             'tags',
             'prices.platform',
             'prices.store',
-            'reviews.user' // Load reviews and their users
+            'reviews.user'
         ]);
 
-        // For related/recommended games (simple example: games by same developer)
         $relatedGames = M_Games::where('developer_id', $game->developer_id)
             ->where('id', '!=', $game->id)
             ->where('visible', true)
@@ -49,18 +51,20 @@ class C_Game extends Controller
 
         $breadcrumbs = [
             ['name' => 'Home', 'url' => route('home')],
-            ['name' => 'Games', 'url' => '#'], // Or discover if no general games list
+            ['name' => 'Games', 'url' => '#'],
             ['name' => Str::limit($game->name, 30)]
         ];
 
-        return view('games.V_ShowGame', compact('game', 'relatedGames', 'breadcrumbs'));
+        return view('games.V_Show', compact('game', 'relatedGames', 'breadcrumbs'));
     }
 
+    // Show the form for creating a new game.
+    // Provides necessary data like developers, tags, platforms, and stores.
     public function create()
     {
         $breadcrumbs = [
             ['name' => 'Home', 'url' => route('home')],
-            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')], // Placeholder for admin dashboard
+            ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
             ['name' => 'Add Game']
         ];
         return view('games.V_CreateEdit', [
@@ -74,14 +78,16 @@ class C_Game extends Controller
         ]);
     }
 
+    // Store a newly created game in storage.
+    // Handles validation, tags, prices, and image uploads within a database transaction.
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:games,name', // Ensure name is unique
+            'name' => 'required|string|max:255|unique:games,name',
             'description' => 'nullable|string',
             'trailer_link' => 'nullable|url',
             'visible' => 'required|boolean',
-            'tags' => 'nullable|string', // Comma-separated tag names
+            'tags' => 'nullable|string',
             'developer_id' => 'required|exists:developers,id',
             'prices' => 'required|array|min:1',
             'prices.*.platform_id' => 'required|exists:platforms,id',
@@ -128,7 +134,7 @@ class C_Game extends Controller
                     $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
                     $image->storeAs('images', $filename, 'public');
                     M_GameImages::create([
-                        'image' => $filename, // Store 'game_images/filename.ext'
+                        'image' => $filename,
                         'game_id' => $game->id
                     ]);
                 }
@@ -142,14 +148,16 @@ class C_Game extends Controller
         }
     }
 
+    // Show the form for editing the specified game.
+    // Eager loads game data and provides necessary select options.
     public function edit(M_Games $game)
     {
-        $game->load('images', 'tags', 'prices'); // Eager load for the form
+        $game->load('images', 'tags', 'prices');
 
         $breadcrumbs = [
             ['name' => 'Home', 'url' => route('home')],
             ['name' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
-            ['name' => 'Games', 'url' => route('admin.games.index')], // Assuming an admin games list page
+            ['name' => 'Games', 'url' => route('admin.games.index')],
             ['name' => 'Edit: ' . Str::limit($game->name, 20)]
         ];
 
@@ -164,6 +172,8 @@ class C_Game extends Controller
         ]);
     }
 
+    // Update the specified game in storage.
+    // Handles validation, tags, prices, image uploads, and image deletions within a transaction.
     public function update(Request $request, M_Games $game)
     {
         $validated = $request->validate([
@@ -180,8 +190,8 @@ class C_Game extends Controller
             'prices.*.discount' => 'nullable|numeric|min:0|max:100',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'delete_images' => 'nullable|array', // For handling image deletion
-            'delete_images.*' => 'integer|exists:game_images,id', // <<< CORRECTED TABLE NAME
+            'delete_images' => 'nullable|array',
+            'delete_images.*' => 'integer|exists:game_images,id',
         ]);
 
         DB::beginTransaction();
@@ -200,8 +210,6 @@ class C_Game extends Controller
                 $game->tags()->detach();
             }
 
-            // Price update: Delete old and create new.
-            // Consider a more sophisticated update if historical prices are needed.
             $game->prices()->delete();
             foreach ($validated['prices'] as $priceData) {
                 M_Prices::create([
@@ -214,18 +222,16 @@ class C_Game extends Controller
                 ]);
             }
 
-            // Handle image deletion
             if ($request->has('delete_images')) {
-                // Get image IDs that actually belong to this game to prevent deleting images from other games
                 $gameImageIdsToDelete = M_GameImages::where('game_id', $game->id)
                     ->whereIn('id', $request->input('delete_images'))
                     ->pluck('id');
 
                 foreach ($gameImageIdsToDelete as $imageId) {
-                    $image = M_GameImages::find($imageId); // Re-fetch to be safe, though not strictly necessary after pluck
-                    if ($image) { // Should always be true if plucked correctly
-                        Storage::disk('public')->delete('images/' . $image->image); // This is correct
-                        $image->delete(); // Delete the row from game_images table
+                    $image = M_GameImages::find($imageId);
+                    if ($image) {
+                        Storage::disk('public')->delete('images/' . $image->image);
+                        $image->delete();
                     }
                 }
             }
@@ -249,17 +255,17 @@ class C_Game extends Controller
         }
     }
 
+    // Remove the specified game from storage.
+    // Handles deletion of related data (tags, prices, images, etc.) within a transaction.
     public function destroy(M_Games $game)
     {
         DB::beginTransaction();
         try {
-            // Detach from pivot tables first
             $game->tags()->detach();
-            $game->gameStates()->detach(); // Assuming this relationship exists and is many-to-many
-            $game->owners()->detach();     // Users who own the game
-            $game->wishers()->detach();    // Users who wishlisted the game
+            $game->gameStates()->detach();
+            $game->owners()->detach();
+            $game->wishers()->detach();
 
-            // Delete related one-to-many or one-to-one records
             $game->reviews()->delete();
             $game->prices()->delete();
 
@@ -270,7 +276,7 @@ class C_Game extends Controller
 
             $game->delete();
             DB::commit();
-            return redirect()->route('discover') // Or an admin game list page
+            return redirect()->route('discover')
                 ->with('success', 'Game "' . $game->name . '" deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -279,21 +285,22 @@ class C_Game extends Controller
         }
     }
 
-    // Renamed from destroyImage, specific to game images
-    public function destroyGameImage(M_GameImages $image) // Use Route Model Binding
+    // Delete a specific game image from storage and the database.
+    // Uses Route Model Binding for the image.
+    public function destroyGameImage(M_GameImages $image)
     {
-        // Optional: Add authorization check to ensure user can delete this
         Storage::disk('public')->delete('images/' . $image->image);
         $image->delete();
         return back()->with('success', 'Image deleted successfully');
     }
 
-    // Example: An admin page to list all games for management
+    // Display an admin page listing all games for management.
+    // Paginated and ordered by name.
     public function adminIndex(Request $request)
     {
         $games = M_Games::with('developer', 'latestPrice')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(\App\Configuration::$pagination);
 
         $breadcrumbs = [
             ['name' => 'Home', 'url' => route('home')],

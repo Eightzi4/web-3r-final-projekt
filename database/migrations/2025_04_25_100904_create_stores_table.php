@@ -6,18 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'stores' table with id, name, website link, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('stores', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(401); // Old
-            $table->id(); // New
+            $table->id();
             $table->string('name')->unique();
-            $table->string('website_link')->nullable(); // Made nullable as not all might have one
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+            $table->string('website_link')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the 'stores' table if it exists.
     public function down(): void
     {
         Schema::dropIfExists('stores');

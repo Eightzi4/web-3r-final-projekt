@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'wished_games' pivot table with foreign keys to users and games.
     public function up(): void
     {
         Schema::create('wished_games', function (Blueprint $table) {
-            // $table->integer('user_id'); // Old
-            // $table->integer('game_id'); // Old
-            $table->unsignedBigInteger('user_id'); // New
-            $table->unsignedBigInteger('game_id'); // New
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('game_id');
 
             $table->primary(['user_id', 'game_id']);
 
@@ -21,6 +21,8 @@ return new class extends Migration
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the foreign key constraints and then the 'wished_games' pivot table.
     public function down(): void
     {
         Schema::table('wished_games', function (Blueprint $table) {

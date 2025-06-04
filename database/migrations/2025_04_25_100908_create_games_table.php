@@ -6,35 +6,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the database migrations.
+    // Creates the 'games' table with details, foreign key to developers, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('games', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(2001); // Old
-            $table->id(); // New: This creates an UNSIGNED BIGINT 'id'
+            $table->id();
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('trailer_link')->nullable();
             $table->boolean('visible');
 
-            // For developer_id, assuming developers.id is also UNSIGNED BIGINT (created with $table->id())
             $table->unsignedBigInteger('developer_id');
-            $table->foreign('developer_id')->references('id')->on('developers')->onDelete('cascade'); // Added onDelete cascade
+            $table->foreign('developer_id')->references('id')->on('developers')->onDelete('cascade');
 
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the database migrations.
+    // Drops the foreign key constraint and then the 'games' table.
     public function down(): void
     {
         Schema::table('games', function (Blueprint $table) {
-            if (Schema::hasColumn('games', 'developer_id')) { // Check before dropping if you might run down multiple times
+            if (Schema::hasColumn('games', 'developer_id')) {
                 $table->dropForeign(['developer_id']);
             }
         });

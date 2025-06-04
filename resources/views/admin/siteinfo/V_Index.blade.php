@@ -1,24 +1,27 @@
-<x-layouts.v-main-layout title="Site Information" :breadcrumbs="$breadcrumbs">
+{{-- Main layout component for displaying site information --}}
+<x-layouts.v-main title="Site Information" :breadcrumbs="$breadcrumbs">
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- Page header for Site Information --}}
             <header class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Site Information & Statistics</h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">An overview of your application's data.</p>
             </header>
 
+            {{-- Check if statistics data is available --}}
             @if (isset($stats) && !empty($stats))
+                {{-- Grid container for displaying statistics cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {{-- Games Stats --}}
+                    {{-- Statistics Card: Total Games --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
-                                {{-- Heroicon: puzzle-piece --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M14.25 6.087c0-.355-.186-.676-.401-.959l-3.7-4.36c-.44-.52-1.26-.52-1.7 0l-3.7 4.36c-.215.283-.401.604-.401.959V9a2.25 2.25 0 002.25 2.25h.093c.128 0 .255-.05.348-.142l1.466-1.466c.19-.19.45-.293.722-.293s.532.103.722.293l1.466 1.466c.093.092.22.142.348.142h.093A2.25 2.25 0 0014.25 9V6.087z" />
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6 18.75c0-.355.186-.676.401-.959l3.7-4.36c.44-.52 1.26-.52 1.7 0l3.7 4.36c.215.283.401.604.401.959V21a2.25 2.25 0 01-2.25 2.25h-.093a.75.75 0 00-.348.142l-1.466 1.466c-.19.19-.45.293-.722.293s-.532-.103-.722-.293l-1.466-1.466a.75.75 0 00-.348-.142h-.093A2.25 2.25 0 016 21v-2.25z" />
+                                        d="M6 18.75c0-.355.186-.676.401-.959l3.7-4.36c.44-.52 1.26-.52 1.7 0l3.7 4.36c.215.283.401.604.401.959V21a2.25 2.25 0 01-2.25 2.25h-.093a.75.75 0 00-.348.142l-1.466 1.466c-.19.19-.45.293-.722-.293s-.532-.103-.722-.293l-1.466-1.466a.75.75 0 00-.348-.142h-.093A2.25 2.25 0 016 21v-2.25z" />
                                 </svg>
                             </div>
                             <div class="ml-5 w-0 flex-1">
@@ -33,12 +36,10 @@
                             {{ $stats['hiddenGames'] ?? 'N/A' }}
                         </div>
                     </div>
-
-                    {{-- Users Stats --}}
+                    {{-- Statistics Card: Total Users --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-                                {{-- Heroicon: users --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -56,12 +57,10 @@
                             Admins: {{ $stats['adminUsers'] ?? 'N/A' }} | Regular: {{ $stats['regularUsers'] ?? 'N/A' }}
                         </div>
                     </div>
-
-                    {{-- Developers Stats --}}
+                    {{-- Statistics Card: Total Developers --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                                {{-- Heroicon: code-bracket --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -76,12 +75,10 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Reviews Stats --}}
+                    {{-- Statistics Card: Total Reviews --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-pink-500 rounded-md p-3">
-                                {{-- Heroicon: chat-bubble-left-ellipsis --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -96,12 +93,10 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Tags Stats --}}
+                    {{-- Statistics Card: Total Tags --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-                                {{-- Heroicon: tag --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -117,12 +112,10 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Platforms Stats --}}
+                    {{-- Statistics Card: Total Platforms --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-teal-500 rounded-md p-3">
-                                {{-- Heroicon: computer-desktop --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -137,12 +130,10 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Stores Stats --}}
+                    {{-- Statistics Card: Total Stores --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-orange-500 rounded-md p-3">
-                                {{-- Heroicon: building-storefront --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -157,11 +148,10 @@
                             </div>
                         </div>
                     </div>
-
+                    {{-- Statistics Card: Game Image Records --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-lime-500 rounded-md p-3">
-                                {{-- Heroicon: photo --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -176,11 +166,10 @@
                             </div>
                         </div>
                     </div>
-
+                    {{-- Statistics Card: Game-Tag Links --}}
                     <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 bg-gray-500 rounded-md p-3">
-                                {{-- Heroicon: link --}}
                                 <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -198,32 +187,9 @@
 
                 </div>
             @else
+                {{-- Message displayed if no statistics are available --}}
                 <p class="text-center text-gray-500 dark:text-gray-400">No statistics available at the moment.</p>
             @endif
-            {{-- You can add charts here using a library like Chart.js or ApexCharts if you want --}}
-            {{-- Example: <canvas id="myChart"></canvas> --}}
         </div>
     </div>
-</x-layouts.v-main-layout>
-
-{{-- @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Example Chart.js setup if you pass data for charts
-    // const ctx = document.getElementById('myChart');
-    // if (ctx && typeof someChartData !== 'undefined') { // Ensure data is passed from controller
-    //   new Chart(ctx, {
-    //     type: 'bar',
-    //     data: {
-    //       labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    //       datasets: [{
-    //         label: '# of Votes',
-    //         data: [12, 19, 3, 5, 2, 3],
-    //         borderWidth: 1
-    //       }]
-    //     },
-    //     options: { scales: { y: { beginAtZero: true } } }
-    //   });
-    // }
-</script>
-@endpush --}}
+</x-layouts.v-main>

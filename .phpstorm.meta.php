@@ -2035,7 +2035,7 @@ namespace PHPSTORM_META {
     override(\optional(0), type(0));
 
             registerArgumentsSet('auth', );
-        registerArgumentsSet('configs', 
+        registerArgumentsSet('configs',
 'app.name','app.env','app.debug','app.url','app.frontend_url',
 'app.asset_url','app.timezone','app.locale','app.fallback_locale','app.faker_locale',
 'app.cipher','app.key','app.previous_keys','app.maintenance.driver','app.maintenance.store',
@@ -2119,20 +2119,20 @@ namespace PHPSTORM_META {
 'ide-helper.interfaces','ide-helper.model_camel_case_properties','ide-helper.type_overrides.integer','ide-helper.type_overrides.boolean','ide-helper.include_class_docblocks',
 'ide-helper.force_fqn','ide-helper.use_generics_annotations','ide-helper.additional_relation_types','ide-helper.additional_relation_return_types','ide-helper.enforce_nullable_relationships',
 'ide-helper.post_migrate','ide-helper.macroable_traits','tinker.commands','tinker.alias','tinker.dont_alias',);
-        registerArgumentsSet('middleware', 
+        registerArgumentsSet('middleware',
 'web','api','auth','auth.basic','auth.session',
 'cache.headers','can','guest','password.confirm','precognitive',
 'signed','throttle','verified',);
-        registerArgumentsSet('routes', 
+        registerArgumentsSet('routes',
 'sanctum.csrf-cookie','discover','search','games.show',
 'reviews.store','reviews.update','reviews.destroy','wishlist.index','wishlist.add',
 'wishlist.remove','admin.dashboard','admin.games.index','admin.games.create','admin.games.store',
 'admin.games.edit','admin.games.update','admin.games.destroy','admin.game-images.destroy','storage.local',);
-        registerArgumentsSet('views', 
+        registerArgumentsSet('views',
 'V_ShowGame','admin.V_Dashboard','auth.confirm-password','auth.forgot-password','auth.login',
 'auth.register','auth.reset-password','auth.verify-email','components.application-logo','components.auth-session-status',
 'components.danger-button','components.dropdown','components.dropdown-link','components.input-error','components.input-label',
-'components.layouts.v-main-layout','components.modal','components.nav-link','components.primary-button','components.responsive-nav-link',
+'components.layouts.v-main','components.modal','components.nav-link','components.primary-button','components.responsive-nav-link',
 'components.secondary-button','components.text-input','dashboard','discover.V_Discover','games.V_CreateEdit',
 'games.V_Index','games.V_Show','games.V_ShowGame','index','layouts.app',
 'layouts.guest','layouts.navigation','partials._game_card','partials._navbar','profile.edit',
@@ -2144,7 +2144,7 @@ namespace PHPSTORM_META {
 'laravel-exceptions::429','laravel-exceptions::500','laravel-exceptions::503','laravel-exceptions::layout','laravel-exceptions::minimal',
 'notifications::email','pagination::bootstrap-4','pagination::bootstrap-5','pagination::default','pagination::semantic-ui',
 'pagination::simple-bootstrap-4','pagination::simple-bootstrap-5','pagination::simple-default','pagination::simple-tailwind','pagination::tailwind',);
-        registerArgumentsSet('translations', 
+        registerArgumentsSet('translations',
 'auth.failed','auth.password','auth.throttle','pagination.previous','pagination.next',
 'passwords.reset','passwords.sent','passwords.throttled','passwords.token','passwords.user',
 'validation.accepted','validation.accepted_if','validation.active_url','validation.after','validation.after_or_equal',
@@ -2174,7 +2174,7 @@ namespace PHPSTORM_META {
 'validation.size.numeric','validation.size.string','validation.starts_with','validation.string','validation.timezone',
 'validation.unique','validation.uploaded','validation.uppercase','validation.url','validation.ulid',
 'validation.uuid','validation.custom.attribute-name.rule-name',);
-        registerArgumentsSet('env', 
+        registerArgumentsSet('env',
 'APP_NAME','APP_ENV','APP_KEY','APP_DEBUG','APP_URL',
 'APP_LOCALE','APP_FALLBACK_LOCALE','APP_FAKER_LOCALE','APP_MAINTENANCE_DRIVER','PHP_CLI_SERVER_WORKERS',
 'BCRYPT_ROUNDS','LOG_CHANNEL','LOG_STACK','LOG_DEPRECATIONS_CHANNEL','LOG_LEVEL',
@@ -2185,7 +2185,7 @@ namespace PHPSTORM_META {
 'MAIL_MAILER','MAIL_SCHEME','MAIL_HOST','MAIL_PORT','MAIL_USERNAME',
 'MAIL_PASSWORD','MAIL_FROM_ADDRESS','MAIL_FROM_NAME','AWS_ACCESS_KEY_ID','AWS_SECRET_ACCESS_KEY',
 'AWS_DEFAULT_REGION','AWS_BUCKET','AWS_USE_PATH_STYLE_ENDPOINT','VITE_APP_NAME',);
-        
+
                 expectedArguments(\Illuminate\Support\Facades\Gate::has(), 0, argumentsSet('auth'));
     expectedArguments(\Illuminate\Support\Facades\Gate::allows(), 0, argumentsSet('auth'));
     expectedArguments(\Illuminate\Support\Facades\Gate::denies(), 0, argumentsSet('auth'));
@@ -2249,5 +2249,5 @@ namespace PHPSTORM_META {
                 expectedArguments(\Illuminate\Contracts\Translation\Translator::get(), 0, argumentsSet('translations'));
                 expectedArguments(\env(), 0, argumentsSet('env'));
                 expectedArguments(\Illuminate\Support\Env::get(), 0, argumentsSet('env'));
-            
+
 }

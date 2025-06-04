@@ -6,23 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'developer_images' table with image path, foreign key to developers, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('developer_images', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(51); // Old
-            $table->id(); // New
+            $table->id();
             $table->string('image');
-            // $table->integer('developer_id'); // Old
-            $table->unsignedBigInteger('developer_id'); // New
+            $table->unsignedBigInteger('developer_id');
 
             $table->foreign('developer_id')
                   ->references('id')->on('developers')
-                  ->onDelete('cascade'); // If developer is deleted, their images are deleted
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+                  ->onDelete('cascade');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the foreign key constraint and then the 'developer_images' table.
     public function down(): void
     {
         Schema::table('developer_images', function (Blueprint $table) {

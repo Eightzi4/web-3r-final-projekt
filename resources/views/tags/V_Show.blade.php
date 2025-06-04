@@ -1,5 +1,7 @@
-<x-layouts.v-main-layout :title="'Games tagged with: ' . $tag->name" :breadcrumbs="$breadcrumbs">
+{{-- Main layout component for displaying games by a specific tag --}}
+<x-layouts.v-main :title="'Games tagged with: ' . $tag->name" :breadcrumbs="$breadcrumbs">
     <div class="py-6">
+        {{-- Tag information header --}}
         <header class="mb-8 text-center">
             <div class="inline-block px-4 py-2 rounded-lg text-white mb-3" style="background-color: {{ $tag->color ?? '#6366f1' }};">
                 <h1 class="text-3xl md:text-4xl font-bold">{{ $tag->name }}</h1>
@@ -9,14 +11,17 @@
             @endif
         </header>
 
+        {{-- Section displaying games associated with the tag --}}
         <section>
             <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-6 text-center">Games with this tag ({{ $games->total() }})</h2>
              @if($games->isNotEmpty())
+                {{-- Grid for displaying game cards --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
                     @foreach ($games as $game)
                         @include('partials._game_card', ['game' => $game])
                     @endforeach
                 </div>
+                {{-- Pagination for games --}}
                 <div class="mt-10">
                     {{ $games->links() }}
                 </div>
@@ -25,4 +30,4 @@
             @endif
         </section>
     </div>
-</x-layouts.v-main-layout>
+</x-layouts.v-main>

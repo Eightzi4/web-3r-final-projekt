@@ -6,23 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Run the database migrations.
+    // Creates the 'game_images' table with image path, foreign key to games, timestamps, and soft deletes.
     public function up(): void
     {
         Schema::create('game_images', function (Blueprint $table) {
-            // $table->integer('id')->autoIncrement()->startingValue(51); // Old
-            $table->id(); // New
+            $table->id();
             $table->string('image');
-            // $table->integer('game_id'); // Old
-            $table->unsignedBigInteger('game_id'); // New
+            $table->unsignedBigInteger('game_id');
 
             $table->foreign('game_id')
                   ->references('id')->on('games')
-                  ->onDelete('cascade'); // If game is deleted, its images are deleted
-            $table->timestamps(); // Adds created_at and updated_at columns
-            $table->softDeletes(); // For soft deletes
+                  ->onDelete('cascade');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
+    // Reverse the database migrations.
+    // Drops the foreign key constraint and then the 'game_images' table.
     public function down(): void
     {
         Schema::table('game_images', function (Blueprint $table) {

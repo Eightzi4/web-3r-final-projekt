@@ -6,9 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    // Run the database migrations.
+    // Creates the 'sessions' table for storing user session data.
     public function up(): void
     {
         Schema::create('sessions', function (Blueprint $table) {
@@ -21,9 +20,8 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    // Reverse the database migrations.
+    // Drops the 'sessions' table if it exists.
     public function down(): void
     {
         Schema::dropIfExists('sessions');

@@ -1,22 +1,23 @@
+{{-- Main container for a single game card --}}
 <div
     class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-all duration-300 ease-in-out hover:shadow-2xl group flex flex-col
             @if (!$game->visible && auth()->check() && auth()->user()->is_admin) opacity-60 border-2 border-dashed border-gray-400 dark:border-gray-600 @endif">
-    {{-- Add a badge for admins if game is hidden --}}
+    {{-- Badge for hidden games (visible to admins) --}}
     @if (!$game->visible && auth()->check() && auth()->user()->is_admin)
         <div
             class="absolute top-2 left-2 bg-yellow-400 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full z-10">
             Hidden
         </div>
     @endif
+    {{-- Link to the game's detail page --}}
     <a href="{{ route('games.show', $game) }}" class="block relative">
         @if ($game->images->isNotEmpty())
             <img src="{{ asset('storage/images/' . $game->images->first()->image) }}" alt="{{ $game->name }}"
                 class="w-full h-60 object-cover transform group-hover:scale-105 transition-transform duration-300">
-            {{-- Increased height to h-60 --}}
         @else
+            {{-- Placeholder for games without an image --}}
             <div
                 class="w-full h-60 bg-gray-200 dark:bg-gray-700 flex flex-col items-center justify-center text-center p-4">
-                {{-- Increased height, flex-col for text --}}
                 <svg class="w-16 h-16 text-gray-400 dark:text-gray-500 mb-2" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -28,11 +29,12 @@
         @endif
     </a>
 
-    <div class="p-5 flex flex-col flex-grow"> {{-- flex-grow for content to push footer down --}}
-        <h3 class="font-semibold text-lg mb-1.5 text-gray-800 dark:text-white"> {{-- Reduced mb slightly --}}
+    {{-- Content section of the game card --}}
+    <div class="p-5 flex flex-col flex-grow">
+        <h3 class="font-semibold text-lg mb-1.5 text-gray-800 dark:text-white">
             <a href="{{ route('games.show', $game) }}"
                 class="hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2"
-                title="{{ $game->name }}">{{ $game->name }}</a> {{-- line-clamp-2 for name --}}
+                title="{{ $game->name }}">{{ $game->name }}</a>
         </h3>
 
         @if ($game->developer)
@@ -42,12 +44,9 @@
             </p>
         @endif
 
-        {{-- Description removed for brevity on card, or keep it very short:
-        <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2 flex-grow">{{ Str::limit($game->description, 70) }}</p>
-        --}}
-
-        <div class="mt-auto space-y-3"> {{-- Pushes price and tags/actions to bottom --}}
-            <div class="flex flex-wrap gap-1.5 mb-2"> {{-- Reduced gap for tags on card --}}
+        {{-- Tags and price section, pushed to the bottom --}}
+        <div class="mt-auto space-y-3">
+            <div class="flex flex-wrap gap-1.5 mb-2">
                 @if ($game->tags->isNotEmpty())
                     @foreach ($game->tags->take(2) as $tag)
                         <a href="{{ route('tags.show', $tag) }}"
@@ -67,6 +66,7 @@
                 @endif
             </div>
 
+            {{-- Price display --}}
             <div class="flex justify-between items-center">
                 <span class="text-lg font-bold text-indigo-600 dark:text-indigo-400">
                     @if ($game->latestPrice)
@@ -86,9 +86,10 @@
                 @endif
             </div>
 
+            {{-- Admin and Wishlist actions for authenticated users --}}
             @auth
                 <div class="pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <div class="flex space-x-1.5"> {{-- Reduced space for admin buttons --}}
+                    <div class="flex space-x-1.5">
                         @if (Auth::user()->is_admin)
                             <a href="{{ route('admin.games.edit', $game->id) }}" title="Edit Game"
                                 class="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-yellow-400 dark:hover:bg-yellow-600 text-yellow-600 dark:text-yellow-300 transition-colors">
@@ -101,7 +102,7 @@
                                 </svg>
                             </a>
                             <form action="{{ route('admin.games.destroy', $game->id) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to delete {{ addslashes($game->name) }}? This action cannot be undone.')">
+                                onsubmit="return confirm('Are you sure you want to delete {{ addslashes($game->name) }}?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" title="Delete Game"
@@ -114,7 +115,7 @@
                                 </button>
                             </form>
                         @else
-                            <div></div> {{-- Empty div to maintain space if not admin --}}
+                            <div></div>
                         @endif
                     </div>
 
