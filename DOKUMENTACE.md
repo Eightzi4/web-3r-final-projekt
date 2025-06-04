@@ -1,4 +1,4 @@
-# Dokumentace Aplikace GamePlatform
+# Dokumentace Aplikace GameLib
 
 ## Úvod
 
@@ -270,7 +270,7 @@ Popis vybraných důležitých konfiguračních proměnných, primárně ze soub
 *   **`APP_NAME`**:
     *   **Význam**: Název aplikace.
     *   **Účel**: Zobrazuje se v titulcích stránek, emailech a dalších místech, kde je potřeba identifikovat aplikaci.
-    *   **Možné hodnoty**: Řetězec (např. "GamePlatform", "Moje Herní Databáze").
+    *   **Možné hodnoty**: Řetězec (např. "GameLib", "Moje Herní Databáze").
 
 *   **`APP_ENV`**:
     *   **Význam**: Prostředí, ve kterém aplikace běží.
